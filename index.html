@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="cs" dir="ltr">
+  <head>
+    <title>Poznamky.info</title>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name='description' content=''>
+    <meta name='keywords' content=''>
+    <meta name='author' content='Antonin Neumann; http://tonda.info; copyright 2018'>
+	<link rel='author' href='https://plus.google.com/+AntonínNeumann'>
+	<meta name='robots' content='index,follow'>
+    <!-- <link href='favicon.png' rel='shortcut icon' type='image/png'> -->
+    <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAC4UlEQVRYhe2Wz4tWdRTGP+feESJahkmQRBQiRkVamIToQlKYcCqCFkURBRW0LPwHGlwEEWoLN4ZGCwMpCgx3LkJHJKekjJgmlQoicGENY957nqfFfd+ZXvBe550Z2jQHLu/3fc+v557znPN+YUX+7xJtikcmv9xAlkfseMiKsEAK3HukQI53v9++9S2AdSe+OmPF4R93btk/DICRVo3KAzYTWcRTWRcJQAH8DWAKzLXZ2T/65s5YLcX7935+2lNPbj6wZABWrFNd7jm3efulhQSSAjvetuKdez494+mxRz9YiF/RAaC1PS322EzI5ROZMX7XJ2ffWBIACaiHAJAB1QgXxzZNBMVOFON3fnzupiC6KjBMfux5vBef2XhaGbsw42uOfPN6l18XB+bO9588ud5VbKgpIYGEpMSVJn/avWUKQCoIsW3t0a/XKJ1VVZ4Yce5ycPyOD7/N31964OBwADJAbs7Xy90JY6FABjmQwJQfAft7gI/bMaqMUWckRUz9+vzDp1YfOv+y7X3AcADkIHvq73Y8vhfY22YLcPnZTTcsdaDfpLJs8+toAU25lyhVvaohSIt0kLBVNbRI7RPd2YK+231fnHpajq1WAQK5QALV0VSq/11Fj4yRtfK9K68++AsV4MUAUKBsSpcAC0yO57j7r5dpzd/xX5ABNNyZHn3sGHCsPUy71HS3s7MFy0FC6h6hhwVgxbLkh1Woowfdm7BuHNcePbvHxJiywAk4SAfOZjGhYu6ugIIUmea1mTfXn68WS8JmFTfqUHyWjinSiLIhI4BLIvskBWXTa2fkbdevTc8MxBoSgDQ/hpee23gBuNAa5QbyZ/9QQ7ZfvLorUC8DCWpGOufwP9mEi2wByzKGzgiL1hLcZAybRXT3oZ9vuVpfvX3AYPbW5mPgt8EYs1VZOuNFOX5YDIDLKV8BmPFf+4ooXxm4lhc1VlD2ruhW4AjkeZvSYYlJ136hLc+KrMg/e0WxH7Yr39QAAAAASUVORK5CYII=" rel="icon" type="image/x-icon">
+    <style>
+        html, * {
+            padding: 0;
+            margin: 0;
+        }
+        #page {
+            height: 100%;
+            width: 100%;
+        }
+        #notes {
+            padding: 10px;
+            width: 100%;
+            background-color: #FFFBD5;
+            outline: none;
+            box-sizing: border-box;
+        }
+    </style>
+  </head>
+  <body>
+      <div id="page">
+          <textarea id="notes" rows="30" autofocus></textarea>
+      </div>
+
+      <script>
+        /* Stretch out textarea height */
+        var documentHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 5;
+        document.getElementById('notes').style.height = documentHeight + 'px';
+
+        /* Check CTRL+S */
+        document.addEventListener("keydown", function(event) {
+            if (event.which == 83 && event.ctrlKey) {
+                event.preventDefault();
+                console.log('CTRL+S');
+            }
+        });
+
+        window.onload = function() {
+            var textarea = document.getElementById('notes');
+
+            /* Restore data from localStorage */
+            textarea.value = load();
+
+            /* Save data to localStorage */
+            var func = function() {
+                save(textarea.value)
+            }
+            textarea.onkeyup = func;
+            textarea.onblur = func;
+        }
+
+        var save = function(what='', where='default') {
+            localStorage.setItem(where, what);
+        };
+
+        var load = function(key='default') {
+            return localStorage.getItem(key);
+        };
+      </script>
+  </body>
+</html>
