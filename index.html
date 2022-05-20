@@ -75,6 +75,10 @@
                     </div>
                 </form>
             </dialog>
+
+            <form style="display:none">
+                <input type="file" id="opeNotesToLoad" onchange="loadNotes()">
+            </form>
         </div>
 
         <script>
@@ -127,7 +131,37 @@
                         notes.selectionEnd = startPos + 1;
                     }
                 }
+
+                // CTRL+SHIFT+S
+                if (event.which == 83 && event.ctrlKey && event.shiftKey) {
+                    event.preventDefault();
+                    console.log('CTRL+SHIFT+S');
+                    download('notes.txt', document.getElementById('notes').value);
+                }
+
+                // CTRL+SHIFT+O
+                if (event.which == 79 && event.ctrlKey && event.shiftKey) {
+                    event.preventDefault();
+                    console.log('CTRL+SHIFT+O');
+                    document.getElementById('opeNotesToLoad').click();
+                }
+
+  
             });
+
+            function loadNotes() {
+                let file = document.querySelector('input[type=file]').files[0];
+                let reader = new FileReader();
+
+                if (file.type.match(/text.*/)) {
+                    reader.onload = function (event) {
+                        document.getElementById('notes').value = event.target.result;
+                    }
+                } else {
+                    alert("It doesn't seem to be a text file!");
+                }
+                reader.readAsText(file);
+            }
 
             window.onload = function() {
                 var textarea = document.getElementById('notes');
@@ -226,6 +260,20 @@
                     textarea.style[key] = settings[key];
                     }
             }); 
+
+            /* Download notes as TXT */
+            function download(filename, text) {
+                var element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                element.setAttribute('download', filename);
+
+                element.style.display = 'none';
+                document.body.appendChild(element);
+
+                element.click();
+
+                document.body.removeChild(element);
+            }
       </script>
   </body>
 </html>

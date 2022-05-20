@@ -8,3 +8,5 @@ Quick notes in browser, try on www.poznamky.info
 - Override `CRTL+S` to prevent browser saving dialog.
 - `ALT+X` to put set of dash (`-`) as horizontal rule.
 - `CTRL+Q`, `ALT+Q` to remove current line (where the cursor current is).
+- `CTRL+SHIFT+S` save the notes to text file
+- `CTRL+SHIFT+O` load the notes from text file and replace current notes
