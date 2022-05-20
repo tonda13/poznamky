@@ -11,7 +11,7 @@
 	<meta name='robots' content='index,follow'>
     <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAC4UlEQVRYhe2Wz4tWdRTGP+feESJahkmQRBQiRkVamIToQlKYcCqCFkURBRW0LPwHGlwEEWoLN4ZGCwMpCgx3LkJHJKekjJgmlQoicGENY957nqfFfd+ZXvBe550Z2jQHLu/3fc+v557znPN+YUX+7xJtikcmv9xAlkfseMiKsEAK3HukQI53v9++9S2AdSe+OmPF4R93btk/DICRVo3KAzYTWcRTWRcJQAH8DWAKzLXZ2T/65s5YLcX7935+2lNPbj6wZABWrFNd7jm3efulhQSSAjvetuKdez494+mxRz9YiF/RAaC1PS322EzI5ROZMX7XJ2ffWBIACaiHAJAB1QgXxzZNBMVOFON3fnzupiC6KjBMfux5vBef2XhaGbsw42uOfPN6l18XB+bO9588ud5VbKgpIYGEpMSVJn/avWUKQCoIsW3t0a/XKJ1VVZ4Yce5ycPyOD7/N31964OBwADJAbs7Xy90JY6FABjmQwJQfAft7gI/bMaqMUWckRUz9+vzDp1YfOv+y7X3AcADkIHvq73Y8vhfY22YLcPnZTTcsdaDfpLJs8+toAU25lyhVvaohSIt0kLBVNbRI7RPd2YK+231fnHpajq1WAQK5QALV0VSq/11Fj4yRtfK9K68++AsV4MUAUKBsSpcAC0yO57j7r5dpzd/xX5ABNNyZHn3sGHCsPUy71HS3s7MFy0FC6h6hhwVgxbLkh1Woowfdm7BuHNcePbvHxJiywAk4SAfOZjGhYu6ugIIUmea1mTfXn68WS8JmFTfqUHyWjinSiLIhI4BLIvskBWXTa2fkbdevTc8MxBoSgDQ/hpee23gBuNAa5QbyZ/9QQ7ZfvLorUC8DCWpGOufwP9mEi2wByzKGzgiL1hLcZAybRXT3oZ9vuVpfvX3AYPbW5mPgt8EYs1VZOuNFOX5YDIDLKV8BmPFf+4ooXxm4lhc1VlD2ruhW4AjkeZvSYYlJ136hLc+KrMg/e0WxH7Yr39QAAAAASUVORK5CYII=" rel="icon" type="image/x-icon">
     <style>
-        html, * {
+        html, *:not(#settings) {
             padding: 0;
             margin: 0;
         }
@@ -28,79 +28,204 @@
             outline: none;
             box-sizing: border-box;
         }
+        
+        #settings {
+          width: 40%;
+        }
+        #settingsButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: transparent;
+            border: 0;
+        }
     </style>
-  </head>
-  <body>
-      <div id="page">
-          <textarea id="notes" rows="30" autofocus></textarea>
-      </div>
+	</head>
+    <body>
+        <div id="page">
+            <textarea id="notes" rows="30" autofocus></textarea>
+		    <button id="settingsButton">⚙️</button>
 
-      <script>
-          /* Stretch out textarea height */
-          var documentHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 5;
-          document.getElementById('notes').style.height = documentHeight + 'px';
+	        <!-- Simple modal dialog containing a form -->
+	        <dialog id="settings">
+	            <form method="dialog">
+	                <div>
+	                    <label for="txtColor">Text color</label>
+                        <input type="color" id="txtColor" name="txtColor"
+                            value="#f5f4ed">
+    
+                    </div>
 
-          /* Check CTRL+S */
-          document.addEventListener("keydown", function(event) {
-              if (event.which == 83 && event.ctrlKey) {
-                  event.preventDefault();
-                  console.log('CTRL+S');
-              }
-          });
+                    <div>
+                    <label for="bgColor">Background color</label>
+                        <input type="color" id="bgColor" name="bgColor"
+                            value="#003E28">
+                    </div>
 
-          window.onload = function() {
-              var textarea = document.getElementById('notes');
+                    <div>
+                        <label for="fontSize">Font size (px)</label>
+                        <input type="range" id="fontSize" name="fontSize"
+                            min="10" max="18" step="0.5"  oninput="this.nextElementSibling.value = this.value">
+                        <output>0</output>
+                    </div>
 
-              /* Restore data from localStorage */
-              textarea.value = load();
+                    <div>
+                        <button value="cancel">Cancel</button>
+                        <button id="confirmBtn" value="default">Confirm</button>
+                    </div>
+                </form>
+            </dialog>
+        </div>
 
-              /* Save data to localStorage */
-              var func = function() {
-                  save(textarea.value)
-              }
-              textarea.onkeyup = func;
-              textarea.onblur = func;
+        <script>
+            /* Stretch out textarea height */
+            var documentHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 5;
+            document.getElementById('notes').style.height = documentHeight + 'px';
 
-              applySettings();
-          }
+            /* Key shortcuts */
+            document.addEventListener("keydown", function(event) {
+                // CTRL+S
+                if (event.which == 83 && event.ctrlKey) {
+                     event.preventDefault();
+                    console.log('CTRL+S');
+                }
+              
+                // ALT+X
+                if (event.which == 88 && event.altKey) {
+                    event.preventDefault();
+                    console.log('ALT+X');
 
-          var save = function(what='', where='notes') {
-              localStorage.setItem(where, what);
-          };
+                    let notes = document.getElementById('notes');
+                    let horizontalRule = "\r\n" + "".padStart(164, "-") + "\r\n";
+                    
+                    let startPos = notes.selectionStart;
+                    let endPos = notes.selectionEnd;
+                    notes.value = notes.value.substring(0, startPos)
+                        + horizontalRule
+                        + notes.value.substring(endPos, notes.value.length);
+                        notes.selectionEnd = endPos + horizontalRule.length - 2;
+                    // insertAtCursor(document.getElementById('notes'), horizontalRule);
+                }
 
-          var load = function(key='notes') {
-              return localStorage.getItem(key);
-          };
+                // CTRL+Q, ALT+Q
+                if (event.which == 81 && event.ctrlKey 
+                    || event.which == 81 && event.altKey) {
+                    event.preventDefault();
+                    console.log('ALT+Q');
 
-          var applySettings = function() {
-              var themes = {
-                  default: {
-                      "backgroundColor": "#FFFBD5",
-                      "color": "#222222",
-                      "fontFamily": "monospace",
-                      "fontSize": "13.5px"
-                  },
-                  dark: {
-                      "backgroundColor": "#000",
-                      "color": "#3fff00",
-                      "fontFamily": "monospace",
-                      "fontSize": "13.5px"
-                  }
-              };
-              var textarea = document.getElementById('notes');
-              var settings = localStorage.getItem('settings');
+                    let notes = document.getElementById('notes');
+                    let currentStartPos = notes.selectionStart;
+                    let endPos = notes.value.indexOf("\n", currentStartPos);
 
-              if (settings) {
-                  settings = JSON.parse(settings);
-              } else {
-                  localStorage.setItem('settings', JSON.stringify(themes.default))
-                  setting = themes.default;
-              }
+                    let toFindStartOfLine = notes.value;
+                    let startPos = toFindStartOfLine.substring(0, currentStartPos).lastIndexOf("\n");
 
-              for (var key in settings) {
-                  textarea.style[key] = settings[key];
-              }
-          }
+                    if (endPos > startPos) {
+                        notes.value = notes.value.substring(0, startPos)
+                            + notes.value.substring(endPos, notes.value.length);
+
+                        notes.selectionEnd = startPos + 1;
+                    }
+                }
+            });
+
+            window.onload = function() {
+                var textarea = document.getElementById('notes');
+
+                /* Restore data from localStorage */
+                textarea.value = load();
+
+                /* Save data to localStorage */
+                var func = function() {
+                    save(textarea.value)
+                }
+                textarea.onkeyup = func;
+                textarea.onblur = func;
+
+                applySettings();
+            }
+
+            var save = function(what='', where='notes') {
+                localStorage.setItem(where, what);
+            };
+
+            var load = function(key='notes') {
+                return localStorage.getItem(key);
+            };
+
+            var applySettings = function() {
+                var themes = {
+                    default: {
+                        "backgroundColor": "#FFFBD5",
+                        "color": "#222222",
+                        "fontFamily": "monospace",
+                        "fontSize": "13.5px"
+                    },
+                    dark: {
+                        "backgroundColor": "#000",
+                        "color": "#3fff00",
+                        "fontFamily": "monospace",
+                        "fontSize": "13.5px"
+                    }
+                };
+                var textarea = document.getElementById('notes');
+                var settings = localStorage.getItem('settings');
+
+                if (settings) {
+                    settings = JSON.parse(settings);
+                } else {
+                    localStorage.setItem('settings', JSON.stringify(themes.default))
+                    settings = themes.default;
+                }
+
+                for (var key in settings) {
+                    textarea.style[key] = settings[key];
+                }
+            }
+          
+
+            /* Settings - native modal */
+            const settingsButton = document.getElementById('settingsButton');
+            const settingsDialog = document.getElementById('settings');
+
+            const bgcolor = settingsDialog.querySelector('#bgColor');
+            const txtcolor = settingsDialog.querySelector('#txtColor');
+            const fontSize = settingsDialog.querySelector('#fontSize');
+            const textarea = document.getElementById('notes');
+
+            const rgb2hex = (rgb) => `#${rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/).slice(1).map(n => parseInt(n, 10).toString(16).padStart(2, '0')).join('')}`
+
+
+            // "Update details" button opens the <dialog> modally
+            settingsButton.addEventListener('click', function onOpen() {
+                if (typeof settingsDialog.showModal === "function") {
+                    var settings = localStorage.getItem('settings');
+                    
+                    bgcolor.value = rgb2hex(textarea.style['backgroundColor']);
+                    txtcolor.value = rgb2hex(textarea.style['color']);
+                    fontSize.value = textarea.style['fontSize'].slice(0, -2);
+                    fontSize.nextElementSibling.value = fontSize.value;
+
+                    
+                    settingsDialog.showModal();
+                } else {
+                    alert("Sorry, the <dialog> API is not supported by this browser.");
+                }
+            });
+
+            // "Confirm" button of form triggers "close" on dialog because of [method="dialog"]
+            settingsDialog.addEventListener('close', function onClose() {
+                let settings = {
+                    "backgroundColor": bgcolor.value,
+                    "color": txtcolor.value,
+                    "fontFamily": "monospace",
+                    "fontSize": fontSize.value + "px"
+                };
+                localStorage.setItem('settings', JSON.stringify(settings));
+                for (var key in settings) {
+                    textarea.style[key] = settings[key];
+                    }
+            }); 
       </script>
   </body>
 </html>
