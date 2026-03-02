@@ -251,18 +251,16 @@
                 // ALT+X
                 if (event.which == 88 && event.altKey) {
                     event.preventDefault();
-                    console.log('ALT+X');
 
                     let notes = document.getElementById('notes');
-                    let horizontalRule = "\r\n" + "".padStart(164, "-") + "\r\n";
-                    
                     let startPos = notes.selectionStart;
                     let endPos = notes.selectionEnd;
+                    const atLineStart = startPos === 0 || notes.value[startPos - 1] === '\n';
+                    const horizontalRule = (atLineStart ? '' : '\n') + "".padStart(164, "-") + "\n";
                     notes.value = notes.value.substring(0, startPos)
                         + horizontalRule
-                        + notes.value.substring(endPos, notes.value.length);
-                        notes.selectionEnd = endPos + horizontalRule.length - 2;
-                    // insertAtCursor(document.getElementById('notes'), horizontalRule);
+                        + notes.value.substring(endPos);
+                    notes.selectionStart = notes.selectionEnd = startPos + horizontalRule.length;
                 }
 
                 // CTRL+Q, ALT+Q
@@ -300,7 +298,60 @@
                     document.getElementById('opeNotesToLoad').click();
                 }
 
-  
+                // CTRL+D — duplikovat řádek
+                if (event.which == 68 && event.ctrlKey && !event.shiftKey) {
+                    event.preventDefault();
+                    const notes = document.getElementById('notes');
+                    const val = notes.value;
+                    const pos = notes.selectionStart;
+                    const lineStart = val.lastIndexOf('\n', pos - 1) + 1;
+                    const lineEnd = val.indexOf('\n', pos);
+                    const line = lineEnd === -1 ? val.substring(lineStart) : val.substring(lineStart, lineEnd);
+                    const insert = '\n' + line;
+                    const insertAt = lineEnd === -1 ? val.length : lineEnd;
+                    notes.value = val.substring(0, insertAt) + insert + val.substring(insertAt);
+                    notes.selectionStart = notes.selectionEnd = pos + insert.length;
+                }
+
+                // ALT+UP / ALT+DOWN — přesunout řádek
+                if ((event.which == 38 || event.which == 40) && event.altKey) {
+                    event.preventDefault();
+                    const notes = document.getElementById('notes');
+                    const val = notes.value;
+                    const pos = notes.selectionStart;
+                    const lineStart = val.lastIndexOf('\n', pos - 1) + 1;
+                    const lineEnd = val.indexOf('\n', pos);
+                    const currentLine = lineEnd === -1 ? val.substring(lineStart) : val.substring(lineStart, lineEnd);
+
+                    if (event.which == 38) { // nahoru
+                        if (lineStart === 0) return;
+                        const prevLineStart = val.lastIndexOf('\n', lineStart - 2) + 1;
+                        const prevLine = val.substring(prevLineStart, lineStart - 1);
+                        const after = lineEnd === -1 ? '' : val.substring(lineEnd);
+                        notes.value = val.substring(0, prevLineStart) + currentLine + '\n' + prevLine + after;
+                        notes.selectionStart = notes.selectionEnd = prevLineStart + (pos - lineStart);
+                    } else { // dolů
+                        if (lineEnd === -1) return;
+                        const nextLineEnd = val.indexOf('\n', lineEnd + 1);
+                        const nextLine = nextLineEnd === -1 ? val.substring(lineEnd + 1) : val.substring(lineEnd + 1, nextLineEnd);
+                        const after = nextLineEnd === -1 ? '' : val.substring(nextLineEnd);
+                        notes.value = val.substring(0, lineStart) + nextLine + '\n' + currentLine + after;
+                        notes.selectionStart = notes.selectionEnd = lineStart + nextLine.length + 1 + (pos - lineStart);
+                    }
+                }
+
+                // CTRL+L — vybrat aktuální řádek
+                if (event.which == 76 && event.ctrlKey) {
+                    event.preventDefault();
+                    const notes = document.getElementById('notes');
+                    const val = notes.value;
+                    const pos = notes.selectionStart;
+                    const lineStart = val.lastIndexOf('\n', pos - 1) + 1;
+                    const lineEnd = val.indexOf('\n', pos);
+                    notes.selectionStart = lineStart;
+                    notes.selectionEnd = lineEnd === -1 ? val.length : lineEnd;
+                }
+
             });
 
             function loadNotes() {
