@@ -112,22 +112,22 @@
                 }
 
                 // CTRL+Q, ALT+Q
-                if (event.which == 81 && event.ctrlKey 
+                if (event.which == 81 && event.ctrlKey
                     || event.which == 81 && event.altKey) {
                     event.preventDefault();
-                    console.log('ALT+Q');
 
                     let notes = document.getElementById('notes');
                     let currentStartPos = notes.selectionStart;
                     let endPos = notes.value.indexOf("\n", currentStartPos);
+                    let startPos = notes.value.substring(0, currentStartPos).lastIndexOf("\n");
 
-                    let toFindStartOfLine = notes.value;
-                    let startPos = toFindStartOfLine.substring(0, currentStartPos).lastIndexOf("\n");
-
-                    if (endPos > startPos) {
+                    if (endPos === -1) {
+                        // Poslední řádek - smaž od předchozího \n do konce
+                        notes.value = startPos === -1 ? '' : notes.value.substring(0, startPos);
+                        notes.selectionEnd = Math.max(0, startPos);
+                    } else if (endPos > startPos) {
                         notes.value = notes.value.substring(0, startPos)
                             + notes.value.substring(endPos, notes.value.length);
-
                         notes.selectionEnd = startPos + 1;
                     }
                 }
