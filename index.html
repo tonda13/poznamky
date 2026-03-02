@@ -11,7 +11,7 @@
 	<meta name='robots' content='index,follow'>
     <link href="data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAC4UlEQVRYhe2Wz4tWdRTGP+feESJahkmQRBQiRkVamIToQlKYcCqCFkURBRW0LPwHGlwEEWoLN4ZGCwMpCgx3LkJHJKekjJgmlQoicGENY957nqfFfd+ZXvBe550Z2jQHLu/3fc+v557znPN+YUX+7xJtikcmv9xAlkfseMiKsEAK3HukQI53v9++9S2AdSe+OmPF4R93btk/DICRVo3KAzYTWcRTWRcJQAH8DWAKzLXZ2T/65s5YLcX7935+2lNPbj6wZABWrFNd7jm3efulhQSSAjvetuKdez494+mxRz9YiF/RAaC1PS322EzI5ROZMX7XJ2ffWBIACaiHAJAB1QgXxzZNBMVOFON3fnzupiC6KjBMfux5vBef2XhaGbsw42uOfPN6l18XB+bO9588ud5VbKgpIYGEpMSVJn/avWUKQCoIsW3t0a/XKJ1VVZ4Yce5ycPyOD7/N31964OBwADJAbs7Xy90JY6FABjmQwJQfAft7gI/bMaqMUWckRUz9+vzDp1YfOv+y7X3AcADkIHvq73Y8vhfY22YLcPnZTTcsdaDfpLJs8+toAU25lyhVvaohSIt0kLBVNbRI7RPd2YK+231fnHpajq1WAQK5QALV0VSq/11Fj4yRtfK9K68++AsV4MUAUKBsSpcAC0yO57j7r5dpzd/xX5ABNNyZHn3sGHCsPUy71HS3s7MFy0FC6h6hhwVgxbLkh1Woowfdm7BuHNcePbvHxJiywAk4SAfOZjGhYu6ugIIUmea1mTfXn68WS8JmFTfqUHyWjinSiLIhI4BLIvskBWXTa2fkbdevTc8MxBoSgDQ/hpee23gBuNAa5QbyZ/9QQ7ZfvLorUC8DCWpGOufwP9mEi2wByzKGzgiL1hLcZAybRXT3oZ9vuVpfvX3AYPbW5mPgt8EYs1VZOuNFOX5YDIDLKV8BmPFf+4ooXxm4lhc1VlD2ruhW4AjkeZvSYYlJ136hLc+KrMg/e0WxH7Yr39QAAAAASUVORK5CYII=" rel="icon" type="image/x-icon">
     <style>
-        html, *:not(#settings) {
+        *, html {
             padding: 0;
             margin: 0;
         }
@@ -29,16 +29,161 @@
             box-sizing: border-box;
         }
         
-        #settings {
-          width: 40%;
-        }
         #settingsButton {
             position: absolute;
             top: 10px;
             right: 10px;
-            background-color: transparent;
-            border: 0;
+            background: transparent;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 8px;
+            padding: 4px 6px;
+            opacity: 0.5;
+            transition: opacity 0.15s;
         }
+        #settingsButton:hover { opacity: 1; }
+
+        /* Settings dialog */
+        #settings {
+            border: none;
+            border-radius: 16px;
+            padding: 0;
+            margin: auto;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.35);
+            max-width: 440px;
+            max-height: 90vh;
+            width: 90%;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+        }
+        #settings[open] {
+            display: flex;
+            flex-direction: column;
+        }
+        #settings::backdrop {
+            background: rgba(0,0,0,0.45);
+            backdrop-filter: blur(3px);
+        }
+        .s-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px 14px;
+            border-bottom: 1px solid #e8e8e8;
+        }
+        .s-header h2 { margin: 0; font-size: 16px; font-weight: 600; color: #111; }
+        .s-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #999;
+            padding: 4px 8px;
+            border-radius: 6px;
+            line-height: 1;
+        }
+        .s-close:hover { background: #f0f0f0; color: #333; }
+        .s-body {
+            padding: 18px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 0;
+        }
+        #settingsForm {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .s-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        .theme-card {
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: border-color 0.15s, transform 0.1s;
+        }
+        .theme-card:hover { border-color: #bbb; transform: scale(1.04); }
+        .theme-card.active { border-color: #0066ff; }
+        .theme-preview {
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .theme-name {
+            font-size: 10px;
+            text-align: center;
+            padding: 3px 2px;
+            background: #f7f7f7;
+            color: #555;
+            font-weight: 500;
+        }
+        .color-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 0;
+        }
+        .color-row + .color-row { border-top: 1px solid #f2f2f2; }
+        .color-row label { font-size: 14px; color: #333; }
+        #settings input[type="color"] {
+            width: 36px;
+            height: 30px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            padding: 2px;
+            background: none;
+        }
+        .fs-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .fs-header output { color: #0066ff; font-weight: 600; }
+        #settings input[type="range"] { width: 100%; accent-color: #0066ff; }
+        .s-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 14px 22px 18px;
+            border-top: 1px solid #e8e8e8;
+        }
+        .s-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            background: #fff;
+            color: #333;
+        }
+        .s-btn:hover { background: #f5f5f5; }
+        .s-btn-primary { background: #0066ff; color: #fff; border-color: #0066ff; }
+        .s-btn-primary:hover { background: #0052cc; }
     </style>
 	</head>
     <body>
@@ -46,34 +191,43 @@
             <textarea id="notes" rows="30" autofocus></textarea>
 		    <button id="settingsButton">⚙️</button>
 
-	        <!-- Simple modal dialog containing a form -->
+	        <!-- Settings dialog -->
 	        <dialog id="settings">
-	            <form method="dialog">
-	                <div>
-	                    <label for="txtColor">Text color</label>
-                        <input type="color" id="txtColor" name="txtColor"
-                            value="#f5f4ed">
-    
-                    </div>
-
-                    <div>
-                    <label for="bgColor">Background color</label>
-                        <input type="color" id="bgColor" name="bgColor"
-                            value="#003E28">
-                    </div>
-
-                    <div>
-                        <label for="fontSize">Font size (px)</label>
-                        <input type="range" id="fontSize" name="fontSize"
-                            min="10" max="18" step="0.5"  oninput="this.nextElementSibling.value = this.value">
-                        <output>0</output>
-                    </div>
-
-                    <div>
-                        <button value="cancel">Cancel</button>
-                        <button id="confirmBtn" value="default">Confirm</button>
-                    </div>
-                </form>
+	            <form id="settingsForm" method="dialog">
+	                <div class="s-header">
+	                    <h2>Nastavení</h2>
+	                    <button class="s-close" value="cancel">✕</button>
+	                </div>
+	                <div class="s-body">
+	                    <div>
+	                        <div class="s-label">Motiv</div>
+	                        <div class="themes-grid" id="themesGrid"></div>
+	                    </div>
+	                    <div>
+	                        <div class="s-label">Vlastní barvy</div>
+	                        <div class="color-row">
+	                            <label for="bgColor">Pozadí</label>
+	                            <input type="color" id="bgColor" name="bgColor">
+	                        </div>
+	                        <div class="color-row">
+	                            <label for="txtColor">Text</label>
+	                            <input type="color" id="txtColor" name="txtColor">
+	                        </div>
+	                    </div>
+	                    <div>
+	                        <div class="s-label">Velikost písma</div>
+	                        <div class="fs-header">
+	                            <span>Velikost</span>
+	                            <output id="fontSizeOutput">13.5</output>
+	                        </div>
+	                        <input type="range" id="fontSize" name="fontSize" min="10" max="24" step="0.5">
+	                    </div>
+	                </div>
+	                <div class="s-footer">
+	                    <button class="s-btn" value="cancel">Zrušit</button>
+	                    <button class="s-btn s-btn-primary" id="confirmBtn" value="default">Uložit</button>
+	                </div>
+	            </form>
             </dialog>
 
             <form style="display:none">
@@ -218,48 +372,106 @@
             }
           
 
-            /* Settings - native modal */
+            /* Settings */
             const settingsButton = document.getElementById('settingsButton');
             const settingsDialog = document.getElementById('settings');
 
             const bgcolor = settingsDialog.querySelector('#bgColor');
             const txtcolor = settingsDialog.querySelector('#txtColor');
             const fontSize = settingsDialog.querySelector('#fontSize');
+            const fontSizeOutput = document.getElementById('fontSizeOutput');
             const textarea = document.getElementById('notes');
 
-            const rgb2hex = (rgb) => `#${rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/).slice(1).map(n => parseInt(n, 10).toString(16).padStart(2, '0')).join('')}`
+            const toHex = (colorStr) => {
+                if (!colorStr) return '#000000';
+                if (colorStr.startsWith('#')) return colorStr;
+                const m = colorStr.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+                return m ? '#' + m.slice(1).map(n => parseInt(n).toString(16).padStart(2, '0')).join('') : '#000000';
+            };
 
+            const themes = [
+                { name: 'Krém',      bg: '#FFFBD5', color: '#222222' },
+                { name: 'Paper',     bg: '#f8f6f0', color: '#1a1a1a' },
+                { name: 'Tmavý',     bg: '#1c1c1e', color: '#e5e5e7' },
+                { name: 'Matrix',    bg: '#0d0208', color: '#00ff41' },
+                { name: 'Amber',     bg: '#1a0800', color: '#ffb000' },
+                { name: 'Solarized', bg: '#002b36', color: '#839496' },
+                { name: 'Nord',      bg: '#2e3440', color: '#d8dee9' },
+                { name: 'Dracula',   bg: '#282a36', color: '#f8f8f2' },
+            ];
 
-            // "Update details" button opens the <dialog> modally
-            settingsButton.addEventListener('click', function onOpen() {
-                if (typeof settingsDialog.showModal === "function") {
-                    var settings = localStorage.getItem('settings');
-                    
-                    bgcolor.value = rgb2hex(textarea.style['backgroundColor']);
-                    txtcolor.value = rgb2hex(textarea.style['color']);
-                    fontSize.value = textarea.style['fontSize'].slice(0, -2);
-                    fontSize.nextElementSibling.value = fontSize.value;
+            function renderThemes() {
+                const grid = document.getElementById('themesGrid');
+                grid.innerHTML = '';
+                themes.forEach((theme) => {
+                    const card = document.createElement('div');
+                    card.className = 'theme-card';
+                    card.innerHTML = `<div class="theme-preview" style="background:${theme.bg};color:${theme.color}">Aa 123</div><div class="theme-name">${theme.name}</div>`;
+                    card.addEventListener('click', () => {
+                        bgcolor.value = theme.bg;
+                        txtcolor.value = theme.color;
+                        applyLivePreview();
+                        updateActiveTheme();
+                    });
+                    grid.appendChild(card);
+                });
+                updateActiveTheme();
+            }
 
-                    
-                    settingsDialog.showModal();
-                } else {
-                    alert("Sorry, the <dialog> API is not supported by this browser.");
-                }
+            function updateActiveTheme() {
+                document.querySelectorAll('.theme-card').forEach((card, i) => {
+                    const t = themes[i];
+                    card.classList.toggle('active',
+                        t.bg.toLowerCase() === bgcolor.value.toLowerCase() &&
+                        t.color.toLowerCase() === txtcolor.value.toLowerCase()
+                    );
+                });
+            }
+
+            function applyLivePreview() {
+                textarea.style.backgroundColor = bgcolor.value;
+                textarea.style.color = txtcolor.value;
+                textarea.style.fontSize = fontSize.value + 'px';
+            }
+
+            bgcolor.addEventListener('input', () => { applyLivePreview(); updateActiveTheme(); });
+            txtcolor.addEventListener('input', () => { applyLivePreview(); updateActiveTheme(); });
+            fontSize.addEventListener('input', () => { fontSizeOutput.value = fontSize.value; applyLivePreview(); });
+
+            let savedSettings = null;
+
+            settingsButton.addEventListener('click', function() {
+                savedSettings = {
+                    backgroundColor: textarea.style.backgroundColor,
+                    color: textarea.style.color,
+                    fontSize: textarea.style.fontSize
+                };
+                bgcolor.value = toHex(textarea.style.backgroundColor);
+                txtcolor.value = toHex(textarea.style.color);
+                fontSize.value = parseFloat(textarea.style.fontSize) || 13.5;
+                fontSizeOutput.value = fontSize.value;
+                renderThemes();
+                settingsDialog.showModal();
             });
 
-            // "Confirm" button of form triggers "close" on dialog because of [method="dialog"]
-            settingsDialog.addEventListener('close', function onClose() {
-                let settings = {
-                    "backgroundColor": bgcolor.value,
-                    "color": txtcolor.value,
-                    "fontFamily": "monospace",
-                    "fontSize": fontSize.value + "px"
-                };
-                localStorage.setItem('settings', JSON.stringify(settings));
-                for (var key in settings) {
-                    textarea.style[key] = settings[key];
+            settingsDialog.addEventListener('close', function() {
+                if (settingsDialog.returnValue === 'cancel' || settingsDialog.returnValue === '') {
+                    if (savedSettings) {
+                        textarea.style.backgroundColor = savedSettings.backgroundColor;
+                        textarea.style.color = savedSettings.color;
+                        textarea.style.fontSize = savedSettings.fontSize;
                     }
-            }); 
+                } else {
+                    const settings = {
+                        backgroundColor: bgcolor.value,
+                        color: txtcolor.value,
+                        fontFamily: 'monospace',
+                        fontSize: fontSize.value + 'px'
+                    };
+                    localStorage.setItem('settings', JSON.stringify(settings));
+                    for (const key in settings) textarea.style[key] = settings[key];
+                }
+            });
 
             /* Download notes as TXT */
             function download(filename, text) {
