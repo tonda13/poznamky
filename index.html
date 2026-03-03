@@ -184,6 +184,28 @@
         .s-btn:hover { background: #f5f5f5; }
         .s-btn-primary { background: #0066ff; color: #fff; border-color: #0066ff; }
         .s-btn-primary:hover { background: #0052cc; }
+        .shortcuts-list { display: flex; flex-direction: column; }
+        .shortcut-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 0;
+            gap: 12px;
+        }
+        .shortcut-row + .shortcut-row { border-top: 1px solid #f2f2f2; }
+        .shortcut-desc { font-size: 13px; color: #444; }
+        .shortcut-keys { white-space: nowrap; }
+        kbd {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-family: monospace;
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: 0 1px 0 #bbb;
+            color: #333;
+        }
     </style>
 	</head>
     <body>
@@ -214,13 +236,50 @@
 	                            <input type="color" id="txtColor" name="txtColor">
 	                        </div>
 	                    </div>
-	                    <div>
+                        <div>
 	                        <div class="s-label">Velikost písma</div>
 	                        <div class="fs-header">
 	                            <span>Velikost</span>
 	                            <output id="fontSizeOutput">13.5</output>
 	                        </div>
 	                        <input type="range" id="fontSize" name="fontSize" min="10" max="24" step="0.5">
+	                    </div>
+	                    <div>
+	                        <div class="s-label">Klávesové zkratky</div>
+	                        <div class="shortcuts-list">
+	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>S</kbd></span>
+	                                <span class="shortcut-desc">Zabránit uložení stránky prohlížečem</span>
+	                            </div>
+	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd>Alt</kbd>+<kbd>X</kbd></span>
+	                                <span class="shortcut-desc">Vložit horizontální oddělovač (---)</span>
+	                            </div>
+	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>Q</kbd> / <kbd>Alt</kbd>+<kbd>Q</kbd></span>
+	                                <span class="shortcut-desc">Smazat aktuální řádek</span>
+	                            </div>
+	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>D</kbd></span>
+	                                <span class="shortcut-desc">Duplikovat řádek</span>
+	                            </div>
+	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>L</kbd></span>
+	                                <span class="shortcut-desc">Vybrat aktuální řádek</span>
+	                            </div>
+	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd>Alt</kbd>+<kbd>↑</kbd> / <kbd>Alt</kbd>+<kbd>↓</kbd></span>
+	                                <span class="shortcut-desc">Přesunout řádek nahoru / dolů</span>
+	                            </div>
+	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></span>
+	                                <span class="shortcut-desc">Uložit poznámky do souboru</span>
+	                            </div>
+	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd></span>
+	                                <span class="shortcut-desc">Načíst poznámky ze souboru</span>
+	                            </div>
+	                        </div>
 	                    </div>
 	                </div>
 	                <div class="s-footer">
