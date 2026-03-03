@@ -10,3 +10,6 @@ Quick notes in browser, try on www.poznamky.info
 - `CTRL+Q`, `ALT+Q` to remove current line (where the cursor current is).
 - `CTRL+SHIFT+S` save the notes to text file
 - `CTRL+SHIFT+O` load the notes from text file and replace current notes
+- CTRL+D — duplikovat řádek
+- ALT+UP / ALT+DOWN — přesunout řádek
+- CTRL+L — vybrat aktuální řádek
