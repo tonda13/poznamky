@@ -248,7 +248,7 @@
 	                        <div class="s-label">Klávesové zkratky</div>
 	                        <div class="shortcuts-list">
 	                            <div class="shortcut-row">
-	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>S</kbd></span>
+	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>S</kbd></span>
 	                                <span class="shortcut-desc">Zabránit uložení stránky prohlížečem</span>
 	                            </div>
 	                            <div class="shortcut-row">
@@ -260,11 +260,11 @@
 	                                <span class="shortcut-desc">Smazat aktuální řádek</span>
 	                            </div>
 	                            <div class="shortcut-row">
-	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>D</kbd></span>
+	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>D</kbd></span>
 	                                <span class="shortcut-desc">Duplikovat řádek</span>
 	                            </div>
 	                            <div class="shortcut-row">
-	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>L</kbd></span>
+	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>L</kbd></span>
 	                                <span class="shortcut-desc">Vybrat aktuální řádek</span>
 	                            </div>
 	                            <div class="shortcut-row">
@@ -272,11 +272,11 @@
 	                                <span class="shortcut-desc">Přesunout řádek nahoru / dolů</span>
 	                            </div>
 	                            <div class="shortcut-row">
-	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></span>
+	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></span>
 	                                <span class="shortcut-desc">Uložit poznámky do souboru</span>
 	                            </div>
 	                            <div class="shortcut-row">
-	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd></span>
+	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd></span>
 	                                <span class="shortcut-desc">Načíst poznámky ze souboru</span>
 	                            </div>
 	                        </div>
@@ -299,10 +299,19 @@
             var documentHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0) - 5;
             document.getElementById('notes').style.height = documentHeight + 'px';
 
+            /* Na macOS zobrazit v seznamu zkratek ⌘ místo Ctrl */
+            const isMac = /Mac|iPhone|iPad/.test(navigator.userAgentData?.platform || navigator.platform || '');
+            if (isMac) {
+                document.querySelectorAll('.mod-key').forEach(function(el) { el.textContent = '⌘'; });
+            }
+
             /* Key shortcuts */
             document.addEventListener("keydown", function(event) {
-                // CTRL+S
-                if (event.which == 83 && event.ctrlKey) {
+                // Ctrl (Windows/Linux) nebo Cmd (macOS)
+                const mod = event.ctrlKey || event.metaKey;
+
+                // CTRL+S / CMD+S
+                if (event.which == 83 && mod && !event.shiftKey) {
                      event.preventDefault();
                     console.log('CTRL+S');
                 }
@@ -322,7 +331,7 @@
                     notes.selectionStart = notes.selectionEnd = startPos + horizontalRule.length;
                 }
 
-                // CTRL+Q, ALT+Q
+                // CTRL+Q, ALT+Q (CMD+Q záměrně ne — na macOS ukončí prohlížeč)
                 if (event.which == 81 && event.ctrlKey
                     || event.which == 81 && event.altKey) {
                     event.preventDefault();
@@ -343,22 +352,22 @@
                     }
                 }
 
-                // CTRL+SHIFT+S
-                if (event.which == 83 && event.ctrlKey && event.shiftKey) {
+                // CTRL+SHIFT+S / CMD+SHIFT+S
+                if (event.which == 83 && mod && event.shiftKey) {
                     event.preventDefault();
                     console.log('CTRL+SHIFT+S');
                     download('notes.txt', document.getElementById('notes').value);
                 }
 
-                // CTRL+SHIFT+O
-                if (event.which == 79 && event.ctrlKey && event.shiftKey) {
+                // CTRL+SHIFT+O / CMD+SHIFT+O
+                if (event.which == 79 && mod && event.shiftKey) {
                     event.preventDefault();
                     console.log('CTRL+SHIFT+O');
                     document.getElementById('opeNotesToLoad').click();
                 }
 
-                // CTRL+D — duplikovat řádek
-                if (event.which == 68 && event.ctrlKey && !event.shiftKey) {
+                // CTRL+D / CMD+D — duplikovat řádek
+                if (event.which == 68 && mod && !event.shiftKey) {
                     event.preventDefault();
                     const notes = document.getElementById('notes');
                     const val = notes.value;
@@ -399,8 +408,8 @@
                     }
                 }
 
-                // CTRL+L — vybrat aktuální řádek
-                if (event.which == 76 && event.ctrlKey) {
+                // CTRL+L / CMD+L — vybrat aktuální řádek
+                if (event.which == 76 && mod && !event.shiftKey) {
                     event.preventDefault();
                     const notes = document.getElementById('notes');
                     const val = notes.value;
