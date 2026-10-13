@@ -3,7 +3,20 @@ Quick notes in browser, try on www.poznamky.info
 
 ## Features
 - Notes are stored only in your browser with [LocalStorage](https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage).
-- The editor is centered and at most 1280px wide; the whole page uses the background color of the selected theme.
+- The text is centered and at most 1260px wide, while the editor spans the whole window, and has no visible scrollbar (long notes scroll with the wheel, trackpad or keyboard). The whole page uses the background color of the selected theme.
+
+### Multiple notes
+With a single note the app looks exactly as before. More notes are there when you need them:
+
+- `CTRL+K` (`CMD+K` on macOS) opens the note switcher: notes are listed by recent use with a preview of the first line, typing filters them by name and content (diacritics are ignored).
+- `Enter` opens the selected note. Without a query the previous note is preselected, so `CTRL+K`, `Enter` toggles between the last two notes.
+- When no note has exactly the typed name, `+ New note` creates it.
+- `CTRL+Backspace` (`CMD+Backspace`) deletes the selected note after confirmation. The default note can't be deleted.
+- Every note has its own address: `www.poznamky.info/#work`. You can bookmark it or open it in another browser tab. The default note has no `#`.
+- With more than one note, a 🗂️ button with their count appears below the ⚙️ and 📄 buttons; clicking it opens the switcher.
+- Each note except the default one can have its own colors: check *Colors only for this note* in settings (⚙️). The font size stays global. Notes with own colors have a small color square in the switcher.
+- Empty notes (except the default one) are not kept, so they disappear when you leave them (together with their colors).
+- PDF export, `CTRL+SHIFT+S` and `CTRL+SHIFT+O` work with the current note; the file name contains the note name.
 
 ### Export to PDF with Markdown
 Press `CTRL+P` or click the 📄 button to open the browser print dialog, where you can print the notes or save them as PDF.
@@ -12,12 +25,14 @@ Press `CTRL+P` or click the 📄 button to open the browser print dialog, where 
 - Single line breaks are kept, so plain notes print the same way as you see them in the editor.
 - A line of dashes (`ALT+X`) is printed as a horizontal rule.
 - The PDF uses a print-friendly style (serif font, black text on white), independent of the selected color theme.
-- The suggested file name is `poznamky-YYYY-MM-DD`.
+- The suggested file name is `poznamky-YYYY-MM-DD` (`poznamky-<note>-YYYY-MM-DD` for other than the default note).
 - Rendering uses [marked](https://marked.js.org/) and [DOMPurify](https://github.com/cure53/DOMPurify) from CDN. When they can't be loaded (e.g. offline), the notes are printed as plain text.
 
 ### Keyboard shortcuts
-The list of shortcuts is also available in the settings dialog (⚙️ button).
+The list of shortcuts is also available in the settings dialog (⚙️ button or `CTRL+,`).
 
+- `CTRL+K` switch to another note or create a new one
+- `CTRL+,` open settings (pressing it again closes them without saving)
 - `CTRL+S` is overridden to prevent the browser save dialog.
 - `ALT+X` to put set of dash (`-`) as horizontal rule.
 - `CTRL+Q`, `ALT+Q` to remove current line (where the cursor current is).
@@ -28,4 +43,13 @@ The list of shortcuts is also available in the settings dialog (⚙️ button).
 - `CTRL+L` select row
 - `CTRL+P` export notes to PDF with Markdown formatting (also via the 📄 button)
 
-On macOS, `CMD` can be used instead of `CTRL` (except `CTRL+Q` — `CMD+Q` quits the browser, use `ALT+Q`). The shortcuts list in settings then shows `⌘` instead of `Ctrl`.
+On macOS, `CMD` can be used instead of `CTRL`, except `CTRL+Q` (`CMD+Q` quits the browser, use `ALT+Q`) and `CTRL+SHIFT+O` (`CMD+SHIFT+O` is reserved by the browser for bookmarks). The shortcuts list in settings then shows `⌘` instead of `Ctrl`.
+
+## Tests
+End-to-end tests use [Playwright](https://playwright.dev/) (Chromium and WebKit) against a small static server:
+
+```sh
+npm install
+npx playwright install chromium webkit
+npm test
+```

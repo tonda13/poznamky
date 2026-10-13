@@ -1,0 +1,12 @@
+{
+  "name": "poznamky",
+  "private": true,
+  "description": "Quick notes in browser, try on www.poznamky.info",
+  "license": "MIT",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0"
+  }
+}
