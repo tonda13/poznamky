@@ -40,3 +40,20 @@ test('Alt+X inserts a horizontal rule', async ({ page }) => {
     // Length depends on the window width, see layout.spec.ts
     await expect(page.locator('#notes')).toHaveValue(/^abc\n-{3,}\n$/);
 });
+
+test.describe('settings shortcut', () => {
+    test('Ctrl/Cmd+, opens settings and closes them without saving', async ({ page }) => {
+        await page.keyboard.press('ControlOrMeta+Comma');
+        await expect(page.locator('#settings')).toBeVisible();
+        await page.locator('.theme-card', { hasText: 'Nord' }).click();
+        await page.keyboard.press('ControlOrMeta+Comma');
+        await expect(page.locator('#settings')).toBeHidden();
+        await expect(page.locator('#notes')).toHaveCSS('background-color', 'rgb(255, 251, 213)');
+    });
+
+    test('settings list and button tooltip mention the shortcut', async ({ page }) => {
+        await expect(page.locator('#settingsButton')).toHaveAttribute('title', /Nastavení \((⌘|Ctrl\+),\)/);
+        await page.locator('#settingsButton').click();
+        await expect(page.locator('.shortcut-row', { hasText: 'Otevřít nastavení' })).toBeVisible();
+    });
+});

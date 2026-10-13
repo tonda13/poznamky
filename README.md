@@ -29,9 +29,10 @@ Press `CTRL+P` or click the 📄 button to open the browser print dialog, where 
 - Rendering uses [marked](https://marked.js.org/) and [DOMPurify](https://github.com/cure53/DOMPurify) from CDN. When they can't be loaded (e.g. offline), the notes are printed as plain text.
 
 ### Keyboard shortcuts
-The list of shortcuts is also available in the settings dialog (⚙️ button).
+The list of shortcuts is also available in the settings dialog (⚙️ button or `CTRL+,`).
 
 - `CTRL+K` switch to another note or create a new one
+- `CTRL+,` open settings (pressing it again closes them without saving)
 - `CTRL+S` is overridden to prevent the browser save dialog.
 - `ALT+X` to put set of dash (`-`) as horizontal rule.
 - `CTRL+Q`, `ALT+Q` to remove current line (where the cursor current is).

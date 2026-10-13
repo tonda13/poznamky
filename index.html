@@ -431,6 +431,10 @@
 	                                <span class="shortcut-desc">Přepnout / vytvořit poznámku</span>
 	                            </div>
 	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>,</kbd></span>
+	                                <span class="shortcut-desc">Otevřít nastavení</span>
+	                            </div>
+	                            <div class="shortcut-row">
 	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>S</kbd></span>
 	                                <span class="shortcut-desc">Zabránit uložení stránky prohlížečem</span>
 	                            </div>
@@ -570,6 +574,16 @@
                 if (event.which == 80 && mod && !event.shiftKey) {
                     event.preventDefault();
                     exportPdf();
+                }
+
+                // CTRL+, / CMD+, — otevřít / zavřít nastavení (zavření = zrušit změny)
+                if (event.which == 188 && mod && !event.shiftKey) {
+                    event.preventDefault();
+                    if (settingsDialog.open) {
+                        settingsDialog.close('cancel');
+                    } else {
+                        settingsButton.click();
+                    }
                 }
 
                 // CTRL+K / CMD+K — přepnout / vytvořit poznámku
@@ -1109,6 +1123,8 @@
 
             document.getElementById('notesButton').addEventListener('click', openSwitcher);
             document.getElementById('notesButton').title += isMac ? ' (⌘K)' : ' (Ctrl+K)';
+            document.getElementById('settingsButton').title += isMac ? ' (⌘,)' : ' (Ctrl+,)';
+            document.getElementById('exportButton').title += isMac ? ' (⌘P)' : ' (Ctrl+P)';
 
             /* Notes added or removed in another browser tab */
             window.addEventListener('storage', function(event) {
