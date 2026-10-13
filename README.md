@@ -3,7 +3,7 @@ Quick notes in browser, try on www.poznamky.info
 
 ## Features
 - Notes are stored only in your browser with [LocalStorage](https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage).
-- The editor is centered and at most 1280px wide; the whole page uses the background color of the selected theme.
+- The text is centered and at most 1260px wide, while the editor spans the whole window, so the scrollbar of long notes is at the window edge. The whole page uses the background color of the selected theme.
 
 ### Multiple notes
 With a single note the app looks exactly as before. More notes are there when you need them:
@@ -41,7 +41,7 @@ The list of shortcuts is also available in the settings dialog (⚙️ button).
 - `CTRL+L` select row
 - `CTRL+P` export notes to PDF with Markdown formatting (also via the 📄 button)
 
-On macOS, `CMD` can be used instead of `CTRL` (except `CTRL+Q` — `CMD+Q` quits the browser, use `ALT+Q`). The shortcuts list in settings then shows `⌘` instead of `Ctrl`.
+On macOS, `CMD` can be used instead of `CTRL`, except `CTRL+Q` (`CMD+Q` quits the browser, use `ALT+Q`) and `CTRL+SHIFT+O` (`CMD+SHIFT+O` is reserved by the browser for bookmarks). The shortcuts list in settings then shows `⌘` instead of `Ctrl`.
 
 ## Tests
 End-to-end tests use [Playwright](https://playwright.dev/) (Chromium and WebKit) against a small static server:

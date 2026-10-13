@@ -24,10 +24,10 @@
         }
         #notes {
             display: block;
-            padding: 10px;
+            /* Full width so the scrollbar sits at the window edge;
+               the side padding keeps the text at most 1260px wide and centered */
+            padding: 10px max(10px, calc((100% - 1260px) / 2));
             width: 100%;
-            max-width: 1280px;
-            margin: 0 auto;
             border: none;
             resize: none;
             font-family: monospace;
@@ -469,7 +469,7 @@
 	                                <span class="shortcut-desc">Uložit poznámky do souboru</span>
 	                            </div>
 	                            <div class="shortcut-row">
-	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd></span>
+	                                <span class="shortcut-keys"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd></span>
 	                                <span class="shortcut-desc">Načíst poznámky ze souboru</span>
 	                            </div>
 	                            <div class="shortcut-row">
