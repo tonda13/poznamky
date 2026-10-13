@@ -33,3 +33,34 @@ test('long notes scroll without a visible scrollbar', async ({ page }) => {
     await page.mouse.wheel(0, 500);
     await expect.poll(() => notes.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
 });
+
+for (const width of [600, 1000, 1800]) {
+    test(`Alt+X separator fits on one line at ${width}px`, async ({ page }) => {
+        await page.setViewportSize({ width, height: 600 });
+        await page.goto('/');
+        await page.evaluate(() => localStorage.clear());
+        await page.reload();
+        const notes = page.locator('#notes');
+        await notes.click();
+        await page.keyboard.press('Alt+KeyX');
+        const dashes = (await notes.inputValue()).replace(/\n/g, '').length;
+
+        // Measure the text width independently of the app with a span in the same font
+        const { contentWidth, charWidth } = await notes.evaluate(el => {
+            const style = getComputedStyle(el);
+            const span = document.createElement('span');
+            span.style.font = style.font;
+            span.style.whiteSpace = 'pre';
+            span.textContent = '-'.repeat(100);
+            document.body.appendChild(span);
+            const charWidth = span.getBoundingClientRect().width / 100;
+            span.remove();
+            return {
+                contentWidth: el.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight),
+                charWidth,
+            };
+        });
+        expect(dashes * charWidth).toBeLessThanOrEqual(contentWidth);
+        expect((dashes + 1) * charWidth).toBeGreaterThan(contentWidth);
+    });
+}

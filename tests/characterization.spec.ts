@@ -37,5 +37,6 @@ test('Alt+X inserts a horizontal rule', async ({ page }) => {
     await page.locator('#notes').click();
     await page.keyboard.type('abc');
     await page.keyboard.press('Alt+KeyX');
-    await expect(page.locator('#notes')).toHaveValue('abc\n' + '-'.repeat(164) + '\n');
+    // Length depends on the window width, see layout.spec.ts
+    await expect(page.locator('#notes')).toHaveValue(/^abc\n-{3,}\n$/);
 });

@@ -524,7 +524,7 @@
                     let startPos = notes.selectionStart;
                     let endPos = notes.selectionEnd;
                     const atLineStart = startPos === 0 || notes.value[startPos - 1] === '\n';
-                    const horizontalRule = (atLineStart ? '' : '\n') + "".padStart(164, "-") + "\n";
+                    const horizontalRule = (atLineStart ? '' : '\n') + "".padStart(charsPerLine(notes), "-") + "\n";
                     notes.value = notes.value.substring(0, startPos)
                         + horizontalRule
                         + notes.value.substring(endPos);
@@ -633,6 +633,16 @@
                 }
 
             });
+
+            /* Number of monospace characters that fit on one line of the textarea */
+            function charsPerLine(textarea) {
+                const style = getComputedStyle(textarea);
+                const context = document.createElement('canvas').getContext('2d');
+                context.font = style.fontSize + ' ' + style.fontFamily;
+                const charWidth = context.measureText('-').width;
+                const width = textarea.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+                return Math.max(3, Math.floor(width / charWidth));
+            }
 
             function loadNotes() {
                 let file = document.querySelector('input[type=file]').files[0];
