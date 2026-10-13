@@ -181,3 +181,18 @@ test.describe('notes bubble', () => {
         await expect(page.locator('#notesBubble')).toHaveText('2');
     });
 });
+
+test.describe('export of the current note', () => {
+    test('Ctrl/Cmd+Shift+S downloads the current note named after it', async ({ page }) => {
+        await page.evaluate(() => localStorage.setItem('notes:work', 'work note'));
+        await page.goto('/#work');
+        const download = page.waitForEvent('download');
+        await page.keyboard.press('ControlOrMeta+Shift+KeyS');
+        expect((await download).suggestedFilename()).toBe('work.txt');
+    });
+
+    test('settings list the switcher shortcut', async ({ page }) => {
+        await page.locator('#settingsButton').click();
+        await expect(page.locator('.shortcut-row').first()).toContainText('Přepnout / vytvořit poznámku');
+    });
+});

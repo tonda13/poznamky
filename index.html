@@ -437,6 +437,10 @@
 	                        <div class="s-label">Klávesové zkratky</div>
 	                        <div class="shortcuts-list">
 	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>K</kbd></span>
+	                                <span class="shortcut-desc">Přepnout / vytvořit poznámku</span>
+	                            </div>
+	                            <div class="shortcut-row">
 	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>S</kbd></span>
 	                                <span class="shortcut-desc">Zabránit uložení stránky prohlížečem</span>
 	                            </div>
@@ -562,7 +566,7 @@
                 if (event.which == 83 && mod && event.shiftKey) {
                     event.preventDefault();
                     console.log('CTRL+SHIFT+S');
-                    download('notes.txt', document.getElementById('notes').value);
+                    download((currentNote || 'notes') + '.txt', document.getElementById('notes').value);
                 }
 
                 // CTRL+SHIFT+O / CMD+SHIFT+O
@@ -1073,7 +1077,7 @@
             window.addEventListener('beforeprint', function() {
                 renderPrintArea();
                 // Název dokumentu se v prohlížeči nabízí jako název PDF souboru
-                document.title = 'poznamky-' + new Date().toISOString().slice(0, 10);
+                document.title = 'poznamky-' + (currentNote ? currentNote + '-' : '') + new Date().toISOString().slice(0, 10);
             });
             window.addEventListener('afterprint', function() {
                 document.title = originalTitle;
