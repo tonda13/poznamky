@@ -13,5 +13,6 @@ Quick notes in browser, try on www.poznamky.info
 - `CTRL+D` duplicate row
 - `ALT+UP` / `ALT+DOWN` move row up/down
 - `CTRL+L` select row
+- `CTRL+P` export notes to PDF with Markdown formatting (also via the 📄 button)
 
 On macOS, `CMD` can be used instead of `CTRL` (except `CTRL+Q` — `CMD+Q` quits the browser, use `ALT+Q`).
