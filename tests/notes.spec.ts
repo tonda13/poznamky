@@ -152,25 +152,25 @@ test.describe('note switcher', () => {
     });
 });
 
-test.describe('notes bubble', () => {
+test.describe('notes button', () => {
     test('is hidden with a single note', async ({ page }) => {
-        await expect(page.locator('#notesBubble')).toBeHidden();
+        await expect(page.locator('#notesButton')).toBeHidden();
     });
 
     test('shows the number of notes and opens the switcher', async ({ page }) => {
         await page.evaluate(() => localStorage.setItem('notes:other', 'other note'));
         await page.reload();
-        const bubble = page.locator('#notesBubble');
-        await expect(bubble).toBeVisible();
-        await expect(bubble).toHaveText('2');
-        await bubble.click();
+        const button = page.locator('#notesButton');
+        await expect(button).toBeVisible();
+        await expect(page.locator('#notesCount')).toHaveText('2');
+        await button.click();
         await expect(page.locator('#switcher')).toBeVisible();
         await expect(page.locator('.sw-item')).toHaveCount(2);
     });
 
     test('counts a note opened by hash before it is saved', async ({ page }) => {
         await page.goto('/#new');
-        await expect(page.locator('#notesBubble')).toHaveText('2');
+        await expect(page.locator('#notesCount')).toHaveText('2');
     });
 
     test('updates when a note is added in another tab', async ({ page, context }) => {
@@ -178,7 +178,7 @@ test.describe('notes bubble', () => {
         await other.goto('/#from-other-tab');
         await other.locator('#notes').click();
         await other.keyboard.type('hi');
-        await expect(page.locator('#notesBubble')).toHaveText('2');
+        await expect(page.locator('#notesCount')).toHaveText('2');
     });
 });
 

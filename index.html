@@ -40,10 +40,18 @@
         }
         #notes::-webkit-scrollbar { display: none; }
 
-        #settingsButton {
+        /* Settings, PDF export and notes buttons stacked in the top right corner */
+        #toolbar {
             position: absolute;
             top: 10px;
             right: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+        #toolbar button {
+            position: relative;
             background: transparent;
             border: none;
             font-size: 18px;
@@ -53,57 +61,21 @@
             opacity: 0.5;
             transition: opacity 0.15s;
         }
-        #settingsButton:hover { opacity: 1; }
-        #exportButton {
+        #toolbar button:hover { opacity: 1; }
+        #toolbar button[hidden] { display: none; }
+        /* Number of notes as a small badge in the corner of the notes icon,
+           colors are inverted theme colors (set in syncPageBackground) */
+        #notesCount {
             position: absolute;
-            top: 10px;
-            right: 44px;
-            background: transparent;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 8px;
-            padding: 4px 6px;
-            opacity: 0.5;
-            transition: opacity 0.15s;
-        }
-        #exportButton:hover { opacity: 1; }
-
-        /* Comic bubble with the number of notes, below the settings button */
-        #notesBubble {
-            position: absolute;
-            top: 48px;
-            right: 12px;
-            min-width: 28px;
-            padding: 2px 7px;
-            border: 1.5px solid currentColor;
-            border-radius: 12px;
-            background: var(--bubble-bg, #FFFBD5);
-            color: #222222;
-            font: 600 12px system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            cursor: pointer;
-            opacity: 0.5;
-            transition: opacity 0.15s;
-        }
-        #notesBubble:hover { opacity: 1; }
-        #notesBubble::before, #notesBubble::after {
-            content: '';
-            position: absolute;
-            border-style: solid;
-            border-color: transparent;
-            border-top-width: 0;
-        }
-        #notesBubble::before {
-            top: -8px;
-            right: 7px;
-            border-width: 0 6px 8px;
-            border-bottom-color: currentColor;
-        }
-        #notesBubble::after {
-            top: -5px;
-            right: 9px;
-            border-width: 0 4px 5.5px;
-            border-bottom-color: var(--bubble-bg, #FFFBD5);
+            right: 0;
+            bottom: 1px;
+            min-width: 6px;
+            padding: 1px 2.5px;
+            border-radius: 6px;
+            background: var(--badge-bg, #222222);
+            color: var(--badge-fg, #FFFBD5);
+            font: 700 8px/1 system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            text-align: center;
         }
 
         /* Export do PDF — vykreslený Markdown, viditelný jen při tisku */
@@ -401,9 +373,11 @@
     <body>
         <div id="page">
             <textarea id="notes" rows="30" autofocus></textarea>
-		    <button id="exportButton" title="Export do PDF">📄</button>
-		    <button id="settingsButton">⚙️</button>
-		    <button id="notesBubble" title="Poznámky" hidden></button>
+		    <div id="toolbar">
+		        <button id="settingsButton" title="Nastavení">⚙️</button>
+		        <button id="exportButton" title="Export do PDF">📄</button>
+		        <button id="notesButton" title="Poznámky" hidden>🗂️<span id="notesCount"></span></button>
+		    </div>
 
 	        <!-- Settings dialog -->
 	        <dialog id="settings">
@@ -746,7 +720,7 @@
                 const notes = document.getElementById('notes');
                 notes.value = load(noteKey(name)) || '';
                 touchRecent(name);
-                updateNotesBubble();
+                updateNotesButton();
                 notes.focus();
             }
 
@@ -762,12 +736,11 @@
                 openNote(name);
             }
 
-            /* Bubble below the settings button shows the number of notes (only when > 1) */
-            function updateNotesBubble() {
-                const bubble = document.getElementById('notesBubble');
+            /* Notes button with the number of notes, shown only when there is more than one */
+            function updateNotesButton() {
                 const count = listNotes().length;
-                bubble.hidden = count < 2;
-                bubble.textContent = count;
+                document.getElementById('notesButton').hidden = count < 2;
+                document.getElementById('notesCount').textContent = count;
             }
 
             /* Hash changed by hand or by opening a bookmark */
@@ -806,13 +779,13 @@
                 syncPageBackground();
             }
 
-            /* Page background and the notes bubble follow the textarea colors */
+            /* Page background and the notes count badge follow the textarea colors */
             function syncPageBackground() {
                 const notes = document.getElementById('notes');
-                const bubble = document.getElementById('notesBubble');
+                const badge = document.getElementById('notesCount');
                 document.body.style.backgroundColor = notes.style.backgroundColor;
-                bubble.style.color = notes.style.color;
-                bubble.style.setProperty('--bubble-bg', notes.style.backgroundColor);
+                badge.style.setProperty('--badge-bg', notes.style.color);
+                badge.style.setProperty('--badge-fg', notes.style.backgroundColor);
             }
 
 
@@ -1003,7 +976,7 @@
                     localStorage.removeItem(noteKey(item.name));
                 }
                 localStorage.setItem(RECENT_KEY, JSON.stringify(loadRecent().filter(n => n !== item.name)));
-                updateNotesBubble();
+                updateNotesButton();
                 renderSwitcher(switcherIndex);
                 switcherInput.focus();
             }
@@ -1040,13 +1013,13 @@
 
             switcher.addEventListener('close', () => textarea.focus());
 
-            document.getElementById('notesBubble').addEventListener('click', openSwitcher);
-            document.getElementById('notesBubble').title += isMac ? ' (⌘K)' : ' (Ctrl+K)';
+            document.getElementById('notesButton').addEventListener('click', openSwitcher);
+            document.getElementById('notesButton').title += isMac ? ' (⌘K)' : ' (Ctrl+K)';
 
             /* Notes added or removed in another browser tab */
             window.addEventListener('storage', function(event) {
                 if (event.key !== null && !event.key.startsWith(NOTE_PREFIX)) return;
-                updateNotesBubble();
+                updateNotesButton();
                 if (switcher.open) renderSwitcher(switcherIndex);
             });
 
