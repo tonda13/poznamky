@@ -66,6 +66,43 @@
         }
         #exportButton:hover { opacity: 1; }
 
+        /* Comic bubble with the number of notes, below the settings button */
+        #notesBubble {
+            position: absolute;
+            top: 48px;
+            right: 12px;
+            min-width: 28px;
+            padding: 2px 7px;
+            border: 1.5px solid currentColor;
+            border-radius: 12px;
+            background: var(--bubble-bg, #FFFBD5);
+            color: #222222;
+            font: 600 12px system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.15s;
+        }
+        #notesBubble:hover { opacity: 1; }
+        #notesBubble::before, #notesBubble::after {
+            content: '';
+            position: absolute;
+            border-style: solid;
+            border-color: transparent;
+            border-top-width: 0;
+        }
+        #notesBubble::before {
+            top: -8px;
+            right: 7px;
+            border-width: 0 6px 8px;
+            border-bottom-color: currentColor;
+        }
+        #notesBubble::after {
+            top: -5px;
+            right: 9px;
+            border-width: 0 4px 5.5px;
+            border-bottom-color: var(--bubble-bg, #FFFBD5);
+        }
+
         /* Export do PDF — vykreslený Markdown, viditelný jen při tisku */
         #printArea { display: none; }
         @media print {
@@ -363,6 +400,7 @@
             <textarea id="notes" rows="30" autofocus></textarea>
 		    <button id="exportButton" title="Export do PDF">📄</button>
 		    <button id="settingsButton">⚙️</button>
+		    <button id="notesBubble" title="Poznámky" hidden></button>
 
 	        <!-- Settings dialog -->
 	        <dialog id="settings">
@@ -701,6 +739,7 @@
                 const notes = document.getElementById('notes');
                 notes.value = load(noteKey(name)) || '';
                 touchRecent(name);
+                updateNotesBubble();
                 notes.focus();
             }
 
@@ -714,6 +753,14 @@
                 // replaceState does not fire 'hashchange' and keeps the history clean
                 history.replaceState(null, '', name ? '#' + encodeURIComponent(name) : location.pathname + location.search);
                 openNote(name);
+            }
+
+            /* Bubble below the settings button shows the number of notes (only when > 1) */
+            function updateNotesBubble() {
+                const bubble = document.getElementById('notesBubble');
+                const count = listNotes().length;
+                bubble.hidden = count < 2;
+                bubble.textContent = count;
             }
 
             /* Hash changed by hand or by opening a bookmark */
@@ -752,9 +799,13 @@
                 syncPageBackground();
             }
 
-            /* Page background follows the textarea, so the area around it has the same color */
+            /* Page background and the notes bubble follow the textarea colors */
             function syncPageBackground() {
-                document.body.style.backgroundColor = document.getElementById('notes').style.backgroundColor;
+                const notes = document.getElementById('notes');
+                const bubble = document.getElementById('notesBubble');
+                document.body.style.backgroundColor = notes.style.backgroundColor;
+                bubble.style.color = notes.style.color;
+                bubble.style.setProperty('--bubble-bg', notes.style.backgroundColor);
             }
 
 
@@ -945,6 +996,7 @@
                     localStorage.removeItem(noteKey(item.name));
                 }
                 localStorage.setItem(RECENT_KEY, JSON.stringify(loadRecent().filter(n => n !== item.name)));
+                updateNotesBubble();
                 renderSwitcher(switcherIndex);
                 switcherInput.focus();
             }
@@ -980,6 +1032,16 @@
             });
 
             switcher.addEventListener('close', () => textarea.focus());
+
+            document.getElementById('notesBubble').addEventListener('click', openSwitcher);
+            document.getElementById('notesBubble').title += isMac ? ' (⌘K)' : ' (Ctrl+K)';
+
+            /* Notes added or removed in another browser tab */
+            window.addEventListener('storage', function(event) {
+                if (event.key !== null && !event.key.startsWith(NOTE_PREFIX)) return;
+                updateNotesBubble();
+                if (switcher.open) renderSwitcher(switcherIndex);
+            });
 
             /* Export notes to PDF (Markdown) */
             /* Řádek z pomlček (ALT+X) by v Markdownu udělal z předchozího řádku nadpis,
