@@ -677,6 +677,9 @@
             const NOTE_PREFIX = 'notes:';
             const RECENT_KEY = 'notesRecent';
             let currentNote = '';
+            // Text of the current note as last loaded or saved; unchanged text is never
+            // saved, so a stale browser tab can't overwrite what another tab saved
+            let savedText = '';
 
             function noteKey(name) {
                 return name ? NOTE_PREFIX + name : 'notes';
@@ -694,6 +697,8 @@
             /* Empty non-default notes are not kept, so they disappear when left */
             function saveCurrentNote() {
                 const text = document.getElementById('notes').value;
+                if (text === savedText) return;
+                savedText = text;
                 if (currentNote && text === '') {
                     localStorage.removeItem(noteKey(currentNote));
                 } else {
@@ -731,7 +736,7 @@
             function openNote(name) {
                 currentNote = name;
                 const notes = document.getElementById('notes');
-                notes.value = load(noteKey(name)) || '';
+                notes.value = savedText = load(noteKey(name)) || '';
                 touchRecent(name);
                 updateNotesButton();
                 applySettings();
@@ -1097,6 +1102,13 @@
 
             /* Notes added or removed in another browser tab */
             window.addEventListener('storage', function(event) {
+                // Current note changed in another tab: show it, unless there are unsaved edits here
+                if (event.key === noteKey(currentNote) && textarea.value === savedText) {
+                    const start = textarea.selectionStart;
+                    const end = textarea.selectionEnd;
+                    textarea.value = savedText = event.newValue || '';
+                    textarea.setSelectionRange(start, end);
+                }
                 if (event.key !== null && !event.key.startsWith(NOTE_PREFIX)) return;
                 updateNotesButton();
                 if (switcher.open) renderSwitcher(switcherIndex);
