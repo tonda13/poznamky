@@ -3,7 +3,7 @@ Quick notes in browser, try on www.poznamky.info
 
 ## Features
 - Notes are stored only in your browser with [LocalStorage](https://developer.mozilla.org/en-US/docs/Web/API/Storage/LocalStorage).
-- The text is centered and at most 1260px wide, while the editor spans the whole window, so the scrollbar of long notes is at the window edge. The whole page uses the background color of the selected theme.
+- The text is centered and at most 1260px wide, while the editor spans the whole window, and has no visible scrollbar (long notes scroll with the wheel, trackpad or keyboard). The whole page uses the background color of the selected theme.
 
 ### Multiple notes
 With a single note the app looks exactly as before. More notes are there when you need them:

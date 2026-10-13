@@ -17,3 +17,19 @@ test('narrow window keeps the 10px padding', async ({ page }) => {
     const padding = await page.locator('#notes').evaluate(el => getComputedStyle(el).paddingLeft);
     expect(padding).toBe('10px');
 });
+
+test('long notes scroll without a visible scrollbar', async ({ page }) => {
+    await page.goto('/');
+    await page.evaluate(() => localStorage.setItem('notes', 'line\n'.repeat(500)));
+    await page.reload();
+    const notes = page.locator('#notes');
+    // Headless browsers hide scrollbars anyway, so check the style itself
+    // (older WebKit doesn't know 'scrollbar-width' and uses ::-webkit-scrollbar)
+    const scrollbarWidth = await notes.evaluate(el => (getComputedStyle(el) as any).scrollbarWidth);
+    if (scrollbarWidth !== undefined) expect(scrollbarWidth).toBe('none');
+    expect(await notes.evaluate(el => el.scrollHeight > el.clientHeight)).toBe(true);
+    await notes.evaluate(el => { el.scrollTop = 0; });
+    await notes.hover();
+    await page.mouse.wheel(0, 500);
+    await expect.poll(() => notes.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+});

@@ -35,7 +35,10 @@
             background-color: #FFFBD5;
             outline: none;
             box-sizing: border-box;
+            /* No scrollbar; scrolling by wheel, trackpad and keyboard still works */
+            scrollbar-width: none;
         }
+        #notes::-webkit-scrollbar { display: none; }
 
         #settingsButton {
             position: absolute;
