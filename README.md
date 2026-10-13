@@ -14,7 +14,8 @@ With a single note the app looks exactly as before. More notes are there when yo
 - `CTRL+Backspace` (`CMD+Backspace`) deletes the selected note after confirmation. The default note can't be deleted.
 - Every note has its own address: `www.poznamky.info/#work`. You can bookmark it or open it in another browser tab. The default note has no `#`.
 - With more than one note, a 🗂️ button with their count appears below the ⚙️ and 📄 buttons; clicking it opens the switcher.
-- Empty notes (except the default one) are not kept, so they disappear when you leave them.
+- Each note except the default one can have its own colors: check *Colors only for this note* in settings (⚙️). The font size stays global. Notes with own colors have a small color square in the switcher.
+- Empty notes (except the default one) are not kept, so they disappear when you leave them (together with their colors).
 - PDF export, `CTRL+SHIFT+S` and `CTRL+SHIFT+O` work with the current note; the file name contains the note name.
 
 ### Export to PDF with Markdown
