@@ -535,12 +535,12 @@
             window.onload = function() {
                 var textarea = document.getElementById('notes');
 
-                /* Restore data from localStorage */
-                textarea.value = load();
+                /* Restore data from localStorage (note selected by URL hash) */
+                openNote(nameFromHash());
 
                 /* Save data to localStorage */
                 var func = function() {
-                    save(textarea.value)
+                    saveCurrentNote();
                 }
                 textarea.onkeyup = func;
                 textarea.onblur = func;
@@ -555,6 +555,87 @@
             var load = function(key='notes') {
                 return localStorage.getItem(key);
             };
+
+            /* Multiple notes: the default note stays in 'notes' (no URL hash),
+               other notes live in 'notes:<name>' and are addressed as #<name>. */
+            const NOTE_PREFIX = 'notes:';
+            const RECENT_KEY = 'notesRecent';
+            let currentNote = '';
+
+            function noteKey(name) {
+                return name ? NOTE_PREFIX + name : 'notes';
+            }
+
+            function nameFromHash() {
+                const raw = location.hash.slice(1);
+                try {
+                    return decodeURIComponent(raw).trim();
+                } catch (e) {
+                    return raw.trim();
+                }
+            }
+
+            /* Empty non-default notes are not kept, so they disappear when left */
+            function saveCurrentNote() {
+                const text = document.getElementById('notes').value;
+                if (currentNote && text === '') {
+                    localStorage.removeItem(noteKey(currentNote));
+                } else {
+                    save(text, noteKey(currentNote));
+                }
+            }
+
+            function loadRecent() {
+                try {
+                    const recent = JSON.parse(localStorage.getItem(RECENT_KEY));
+                    return Array.isArray(recent) ? recent.filter(n => typeof n === 'string') : [];
+                } catch (e) {
+                    return [];
+                }
+            }
+
+            function touchRecent(name) {
+                const recent = [name].concat(loadRecent().filter(n => n !== name)).slice(0, 100);
+                localStorage.setItem(RECENT_KEY, JSON.stringify(recent));
+            }
+
+            /* Names of all notes, most recently used first; the default note is '' */
+            function listNotes() {
+                const names = [''];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith(NOTE_PREFIX)) names.push(key.slice(NOTE_PREFIX.length));
+                }
+                if (!names.includes(currentNote)) names.push(currentNote);
+                const recent = loadRecent();
+                const rank = n => recent.includes(n) ? recent.indexOf(n) : Infinity;
+                return names.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+            }
+
+            function openNote(name) {
+                currentNote = name;
+                const notes = document.getElementById('notes');
+                notes.value = load(noteKey(name)) || '';
+                touchRecent(name);
+                notes.focus();
+            }
+
+            function switchNote(name) {
+                name = name.trim();
+                if (name === currentNote) {
+                    document.getElementById('notes').focus();
+                    return;
+                }
+                saveCurrentNote();
+                // replaceState does not fire 'hashchange' and keeps the history clean
+                history.replaceState(null, '', name ? '#' + encodeURIComponent(name) : location.pathname + location.search);
+                openNote(name);
+            }
+
+            /* Hash changed by hand or by opening a bookmark */
+            window.addEventListener('hashchange', function() {
+                switchNote(nameFromHash());
+            });
 
             var applySettings = function() {
                 var themes = {
