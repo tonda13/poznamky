@@ -397,7 +397,7 @@
 	                </div>
 	                <div class="s-body">
 	                    <div>
-	                        <div class="s-label">Motiv</div>
+	                        <div class="s-label" id="themeLabel">Motiv</div>
 	                        <div class="themes-grid" id="themesGrid"></div>
 	                    </div>
 	                    <div>
@@ -409,10 +409,6 @@
 	                        <div class="color-row">
 	                            <label for="txtColor">Text</label>
 	                            <input type="color" id="txtColor" name="txtColor">
-	                        </div>
-	                        <div class="color-row" id="noteColorsRow" hidden>
-	                            <label for="noteColors" id="noteColorsLabel">Barvy jen pro tuto poznámku</label>
-	                            <input type="checkbox" id="noteColors" name="noteColors">
 	                        </div>
 	                    </div>
                         <div>
@@ -675,8 +671,11 @@
             window.onload = function() {
                 var textarea = document.getElementById('notes');
 
+                migrateGlobalColors();
+                dropOrphanColors(nameFromHash());
+
                 /* Restore data from localStorage (note selected by URL hash) */
-                openNote(nameFromHash());
+                openNote(nameFromHash(), loadRecent().map(loadNoteColors).find(Boolean));
 
                 /* Save data to localStorage */
                 var func = function() {
@@ -757,7 +756,11 @@
                 return names.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
             }
 
-            function openNote(name) {
+            /* A note without colors of its own takes the given ones, those of the note used last */
+            function openNote(name, lastColors) {
+                if (!loadNoteColors(name)) {
+                    saveNoteColors(name, lastColors || DEFAULT_COLORS);
+                }
                 currentNote = name;
                 const notes = document.getElementById('notes');
                 notes.value = savedText = load(noteKey(name)) || '';
@@ -774,29 +777,74 @@
                     return;
                 }
                 saveCurrentNote();
+                const lastColors = loadNoteColors(currentNote);
                 // A note removed for being empty takes its colors with it
                 if (currentNote && load(noteKey(currentNote)) === null) {
                     localStorage.removeItem(noteSettingsKey(currentNote));
                 }
                 // replaceState does not fire 'hashchange' and keeps the history clean
                 history.replaceState(null, '', name ? '#' + encodeURIComponent(name) : location.pathname + location.search);
-                openNote(name);
+                openNote(name, lastColors);
             }
 
-            /* Optional own colors of a non-default note, stored as 'settings:<name>' */
+            /* Every note has its own colors, stored as 'settings:<name>' ('settings:' for the
+               default note); the global 'settings' keep only the font */
             const NOTE_SETTINGS_PREFIX = 'settings:';
+            const DEFAULT_COLORS = { backgroundColor: '#FFFBD5', color: '#222222' };
 
             function noteSettingsKey(name) {
                 return NOTE_SETTINGS_PREFIX + name;
             }
 
             function loadNoteColors(name) {
-                if (!name) return null;
+                if (typeof name !== 'string') return null;
                 try {
                     const colors = JSON.parse(localStorage.getItem(noteSettingsKey(name)));
                     return colors && colors.backgroundColor && colors.color ? colors : null;
                 } catch (e) {
                     return null;
+                }
+            }
+
+            function saveNoteColors(name, colors) {
+                localStorage.setItem(noteSettingsKey(name), JSON.stringify({
+                    backgroundColor: colors.backgroundColor,
+                    color: colors.color
+                }));
+            }
+
+            function loadGlobalSettings() {
+                try {
+                    return JSON.parse(localStorage.getItem('settings')) || {};
+                } catch (e) {
+                    return {};
+                }
+            }
+
+            /* Colors used to be global with optional own colors per note:
+               notes without own colors keep the global ones as their own */
+            function migrateGlobalColors() {
+                const global = loadGlobalSettings();
+                if (!global.backgroundColor && !global.color) return;
+                const colors = {
+                    backgroundColor: global.backgroundColor || DEFAULT_COLORS.backgroundColor,
+                    color: global.color || DEFAULT_COLORS.color
+                };
+                listNotes().forEach(function(name) {
+                    if (!loadNoteColors(name)) saveNoteColors(name, colors);
+                });
+                delete global.backgroundColor;
+                delete global.color;
+                localStorage.setItem('settings', JSON.stringify(global));
+            }
+
+            /* Colors of a new note left empty when its tab was closed */
+            function dropOrphanColors(keep) {
+                for (let i = localStorage.length - 1; i >= 0; i--) {
+                    const key = localStorage.key(i);
+                    if (!key.startsWith(NOTE_SETTINGS_PREFIX)) continue;
+                    const name = key.slice(NOTE_SETTINGS_PREFIX.length);
+                    if (name && name !== keep && load(noteKey(name)) === null) localStorage.removeItem(key);
                 }
             }
 
@@ -813,19 +861,9 @@
             });
 
             var applySettings = function() {
-                var themes = {
-                    default: {
-                        "backgroundColor": "#FFFBD5",
-                        "color": "#222222",
-                        "fontFamily": "monospace",
-                        "fontSize": "13.5px"
-                    },
-                    dark: {
-                        "backgroundColor": "#000",
-                        "color": "#3fff00",
-                        "fontFamily": "monospace",
-                        "fontSize": "13.5px"
-                    }
+                var defaults = {
+                    "fontFamily": "monospace",
+                    "fontSize": "13.5px"
                 };
                 var textarea = document.getElementById('notes');
                 var settings = localStorage.getItem('settings');
@@ -833,20 +871,17 @@
                 if (settings) {
                     settings = JSON.parse(settings);
                 } else {
-                    localStorage.setItem('settings', JSON.stringify(themes.default))
-                    settings = themes.default;
+                    localStorage.setItem('settings', JSON.stringify(defaults))
+                    settings = defaults;
                 }
 
                 for (var key in settings) {
                     textarea.style[key] = settings[key];
                 }
 
-                /* Own colors of the current note override the global ones */
-                var noteColors = loadNoteColors(currentNote);
-                if (noteColors) {
-                    textarea.style.backgroundColor = noteColors.backgroundColor;
-                    textarea.style.color = noteColors.color;
-                }
+                var noteColors = loadNoteColors(currentNote) || DEFAULT_COLORS;
+                textarea.style.backgroundColor = noteColors.backgroundColor;
+                textarea.style.color = noteColors.color;
                 syncPageBackground();
             }
 
@@ -868,8 +903,6 @@
             const txtcolor = settingsDialog.querySelector('#txtColor');
             const fontSize = settingsDialog.querySelector('#fontSize');
             const fontSizeOutput = document.getElementById('fontSizeOutput');
-            const noteColorsRow = document.getElementById('noteColorsRow');
-            const noteColorsCheckbox = document.getElementById('noteColors');
             const textarea = document.getElementById('notes');
 
             const toHex = (colorStr) => {
@@ -929,16 +962,6 @@
             txtcolor.addEventListener('input', () => { applyLivePreview(); updateActiveTheme(); });
             fontSize.addEventListener('input', () => { fontSizeOutput.value = fontSize.value; applyLivePreview(); });
 
-            /* Unchecking own note colors previews the global colors again */
-            noteColorsCheckbox.addEventListener('change', function() {
-                if (noteColorsCheckbox.checked) return;
-                const global = JSON.parse(localStorage.getItem('settings')) || {};
-                bgcolor.value = toHex(global.backgroundColor);
-                txtcolor.value = toHex(global.color);
-                applyLivePreview();
-                updateActiveTheme();
-            });
-
             let savedSettings = null;
 
             settingsButton.addEventListener('click', function() {
@@ -951,9 +974,7 @@
                 txtcolor.value = toHex(textarea.style.color);
                 fontSize.value = parseFloat(textarea.style.fontSize) || 13.5;
                 fontSizeOutput.value = fontSize.value;
-                noteColorsRow.hidden = !currentNote;
-                noteColorsCheckbox.checked = !!loadNoteColors(currentNote);
-                document.getElementById('noteColorsLabel').textContent = 'Barvy jen pro poznámku „' + currentNote + '“';
+                document.getElementById('themeLabel').textContent = 'Motiv poznámky „' + noteLabel(currentNote) + '“';
                 renderThemes();
                 settingsDialog.showModal();
             });
@@ -966,24 +987,9 @@
                         textarea.style.fontSize = savedSettings.fontSize;
                     }
                 } else {
-                    const settings = {
-                        backgroundColor: bgcolor.value,
-                        color: txtcolor.value,
-                        fontFamily: 'monospace',
-                        fontSize: fontSize.value + 'px'
-                    };
-                    if (currentNote && noteColorsCheckbox.checked) {
-                        // Colors belong to the note, the font size stays global
-                        localStorage.setItem(noteSettingsKey(currentNote), JSON.stringify({
-                            backgroundColor: settings.backgroundColor,
-                            color: settings.color
-                        }));
-                        const global = JSON.parse(localStorage.getItem('settings')) || {};
-                        settings.backgroundColor = global.backgroundColor || settings.backgroundColor;
-                        settings.color = global.color || settings.color;
-                    } else if (currentNote) {
-                        localStorage.removeItem(noteSettingsKey(currentNote));
-                    }
+                    // Colors belong to the current note, the font stays global
+                    saveNoteColors(currentNote, { backgroundColor: bgcolor.value, color: txtcolor.value });
+                    const settings = { fontFamily: 'monospace', fontSize: fontSize.value + 'px' };
                     localStorage.setItem('settings', JSON.stringify(settings));
                     applySettings();
                 }
@@ -1041,7 +1047,7 @@
                         const swatch = document.createElement('span');
                         swatch.className = 'sw-swatch';
                         swatch.style.backgroundColor = colors.backgroundColor;
-                        swatch.title = 'Vlastní barvy';
+                        swatch.title = 'Barvy poznámky';
                         li.append(swatch);
                     }
                     li.append(preview);

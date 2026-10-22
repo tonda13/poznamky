@@ -28,7 +28,7 @@ test('theme from settings survives reload', async ({ page }) => {
     await page.locator('.theme-card', { hasText: 'Nord' }).click();
     await page.locator('#confirmBtn').click();
     // Dialog 'close' event (which persists the settings) fires asynchronously
-    await expect.poll(() => page.evaluate(() => localStorage.getItem('settings'))).toContain('#2e3440');
+    await expect.poll(() => page.evaluate(() => localStorage.getItem('settings:'))).toContain('#2e3440');
     await page.reload();
     await expect(page.locator('#notes')).toHaveCSS('background-color', 'rgb(46, 52, 64)');
 });
