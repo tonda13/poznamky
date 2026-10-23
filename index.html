@@ -39,6 +39,7 @@
             scrollbar-width: none;
         }
         #notes::-webkit-scrollbar { display: none; }
+        #notes[hidden] { display: none; }
 
         /* Settings, PDF export and notes buttons stacked in the top right corner */
         #toolbar {
@@ -78,6 +79,68 @@
             text-align: center;
         }
 
+        /* Rendered Markdown of the preview (eye button) and the PDF export;
+           colors of rules, code and borders are set by each of them */
+        .markdown { line-height: 1.5; }
+        .markdown h1, .markdown h2, .markdown h3,
+        .markdown h4, .markdown h5, .markdown h6 {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.25;
+            margin: 1.2em 0 0.5em;
+        }
+        .markdown > :first-child { margin-top: 0; }
+        .markdown p, .markdown ul, .markdown ol,
+        .markdown blockquote, .markdown pre, .markdown table { margin: 0 0 0.8em; }
+        .markdown ul, .markdown ol { padding-left: 1.6em; }
+        .markdown li > ul, .markdown li > ol { margin: 0; }
+        .markdown hr { border: none; border-top: 1px solid var(--md-rule); margin: 1.2em 0; }
+        .markdown a { color: var(--md-link); }
+        .markdown code {
+            font-family: ui-monospace, Menlo, Consolas, monospace;
+            font-size: 0.9em;
+            background: var(--md-code-bg);
+            padding: 0.1em 0.3em;
+            border-radius: 3px;
+        }
+        .markdown pre {
+            background: var(--md-code-bg);
+            padding: 0.7em 0.9em;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .markdown pre code { background: none; padding: 0; }
+        .markdown blockquote {
+            border-left: 3px solid var(--md-border);
+            padding-left: 0.9em;
+            color: var(--md-quote);
+        }
+        .markdown table { border-collapse: collapse; }
+        .markdown th, .markdown td { border: 1px solid var(--md-border); padding: 0.3em 0.6em; text-align: left; }
+        .markdown th { background: var(--md-code-bg); }
+        .markdown img { max-width: 100%; }
+        .markdown.plain { font-family: ui-monospace, Menlo, Consolas, monospace; white-space: pre-wrap; }
+
+        /* Preview of the note in the note colors (set in syncPageBackground) */
+        #preview {
+            --md-rule: rgba(127, 127, 127, 0.5);
+            --md-link: inherit;
+            --md-code-bg: rgba(127, 127, 127, 0.15);
+            --md-border: rgba(127, 127, 127, 0.45);
+            --md-quote: inherit;
+            /* Same text column as the notes textarea */
+            padding: 10px max(10px, calc((100% - 1260px) / 2));
+            min-height: 100vh;
+            box-sizing: border-box;
+            color: var(--note-fg);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: calc(var(--note-font-size, 13.5px) * 1.1);
+            outline: none;
+            overflow-wrap: break-word;
+        }
+        #preview[hidden] { display: none; }
+        #preview.plain { font-size: var(--note-font-size, 13.5px); }
+
         /* Export do PDF — vykreslený Markdown, viditelný jen při tisku */
         #printArea { display: none; }
         @media print {
@@ -85,56 +148,24 @@
             body { background-color: #fff !important; }
             #page { display: none; }
             #printArea {
+                --md-rule: #999;
+                --md-link: #0645ad;
+                --md-code-bg: #f2f2f2;
+                --md-border: #bbb;
+                --md-quote: #444;
                 display: block;
                 font-family: Georgia, 'Times New Roman', serif;
                 font-size: 11pt;
-                line-height: 1.5;
                 color: #000;
                 background: #fff;
             }
             #printArea h1, #printArea h2, #printArea h3,
-            #printArea h4, #printArea h5, #printArea h6 {
-                font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-                line-height: 1.25;
-                margin: 1.2em 0 0.5em;
-                break-after: avoid;
-            }
+            #printArea h4, #printArea h5, #printArea h6 { break-after: avoid; }
             #printArea h1 { font-size: 20pt; }
             #printArea h2 { font-size: 16pt; }
             #printArea h3 { font-size: 13pt; }
-            #printArea > :first-child { margin-top: 0; }
-            #printArea p, #printArea ul, #printArea ol,
-            #printArea blockquote, #printArea pre, #printArea table { margin: 0 0 0.8em; }
-            #printArea ul, #printArea ol { padding-left: 1.6em; }
-            #printArea li > ul, #printArea li > ol { margin: 0; }
-            #printArea hr { border: none; border-top: 1px solid #999; margin: 1.2em 0; }
-            #printArea a { color: #0645ad; }
-            #printArea code {
-                font-family: ui-monospace, Menlo, Consolas, monospace;
-                font-size: 0.9em;
-                background: #f2f2f2;
-                padding: 0.1em 0.3em;
-                border-radius: 3px;
-            }
-            #printArea pre {
-                background: #f2f2f2;
-                padding: 0.7em 0.9em;
-                border-radius: 4px;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-                break-inside: avoid;
-            }
-            #printArea pre code { background: none; padding: 0; }
-            #printArea blockquote {
-                border-left: 3px solid #bbb;
-                padding-left: 0.9em;
-                color: #444;
-            }
-            #printArea table { border-collapse: collapse; }
-            #printArea th, #printArea td { border: 1px solid #bbb; padding: 0.3em 0.6em; text-align: left; }
-            #printArea th { background: #f2f2f2; }
-            #printArea img { max-width: 100%; }
-            #printArea.plain { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 10pt; white-space: pre-wrap; }
+            #printArea pre { break-inside: avoid; }
+            #printArea.plain { font-size: 10pt; }
         }
 
         /* Settings dialog */
@@ -382,10 +413,12 @@
     <body>
         <div id="page">
             <textarea id="notes" rows="30" autofocus></textarea>
+            <div id="preview" class="markdown" tabindex="-1" hidden></div>
 		    <div id="toolbar">
 		        <button id="settingsButton" title="Nastavení">⚙️</button>
 		        <button id="exportButton" title="Export do PDF">📄</button>
 		        <button id="notesButton" title="Poznámky" hidden>🗂️<span id="notesCount"></span></button>
+		        <button id="previewButton" title="Náhled Markdown">👁️</button>
 		    </div>
 
 	        <!-- Settings dialog -->
@@ -466,6 +499,14 @@
 	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>P</kbd></span>
 	                                <span class="shortcut-desc">Export do PDF (s Markdown formátováním)</span>
 	                            </div>
+	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd class="mod-key">Ctrl</kbd>+<kbd>E</kbd></span>
+	                                <span class="shortcut-desc">Náhled Markdown / zpět k úpravám</span>
+	                            </div>
+	                            <div class="shortcut-row">
+	                                <span class="shortcut-keys"><kbd>Esc</kbd></span>
+	                                <span class="shortcut-desc">Z náhledu zpět k úpravám</span>
+	                            </div>
 	                        </div>
 	                    </div>
 	                </div>
@@ -490,7 +531,7 @@
             </form>
         </div>
 
-        <div id="printArea"></div>
+        <div id="printArea" class="markdown"></div>
 
         <script src="https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.umd.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.15/dist/purify.min.js"></script>
@@ -517,7 +558,7 @@
                 }
 
                 // ALT+X
-                if (event.which == 88 && event.altKey) {
+                if (event.which == 88 && event.altKey && !previewing) {
                     event.preventDefault();
 
                     let notes = document.getElementById('notes');
@@ -532,8 +573,8 @@
                 }
 
                 // CTRL+Q, ALT+Q (CMD+Q záměrně ne — na macOS ukončí prohlížeč)
-                if (event.which == 81 && event.ctrlKey
-                    || event.which == 81 && event.altKey) {
+                if ((event.which == 81 && event.ctrlKey
+                    || event.which == 81 && event.altKey) && !previewing) {
                     event.preventDefault();
 
                     let notes = document.getElementById('notes');
@@ -563,6 +604,7 @@
                 if (event.which == 79 && mod && event.shiftKey) {
                     event.preventDefault();
                     console.log('CTRL+SHIFT+O');
+                    setPreview(false);
                     document.getElementById('opeNotesToLoad').click();
                 }
 
@@ -588,8 +630,19 @@
                     openSwitcher();
                 }
 
+                // CTRL+E / CMD+E — náhled Markdown / zpět k úpravám
+                if (event.which == 69 && mod && !event.shiftKey && !document.querySelector('dialog[open]')) {
+                    event.preventDefault();
+                    setPreview(!previewing);
+                }
+
+                // ESC — z náhledu zpět k úpravám (otevřený dialog zavře jen sebe)
+                if (event.key === 'Escape' && previewing && !document.querySelector('dialog[open]')) {
+                    setPreview(false);
+                }
+
                 // CTRL+D / CMD+D — duplikovat řádek
-                if (event.which == 68 && mod && !event.shiftKey) {
+                if (event.which == 68 && mod && !event.shiftKey && !previewing) {
                     event.preventDefault();
                     const notes = document.getElementById('notes');
                     const val = notes.value;
@@ -604,7 +657,7 @@
                 }
 
                 // ALT+UP / ALT+DOWN — přesunout řádek
-                if ((event.which == 38 || event.which == 40) && event.altKey) {
+                if ((event.which == 38 || event.which == 40) && event.altKey && !previewing) {
                     event.preventDefault();
                     const notes = document.getElementById('notes');
                     const val = notes.value;
@@ -631,7 +684,7 @@
                 }
 
                 // CTRL+L / CMD+L — vybrat aktuální řádek
-                if (event.which == 76 && mod && !event.shiftKey) {
+                if (event.which == 76 && mod && !event.shiftKey && !previewing) {
                     event.preventDefault();
                     const notes = document.getElementById('notes');
                     const val = notes.value;
@@ -767,7 +820,8 @@
                 touchRecent(name);
                 updateNotesButton();
                 applySettings();
-                notes.focus();
+                // The preview stays open, but a new or empty note is for typing
+                setPreview(previewing && notes.value !== '');
             }
 
             function switchNote(name) {
@@ -892,6 +946,8 @@
                 document.body.style.backgroundColor = notes.style.backgroundColor;
                 badge.style.setProperty('--badge-bg', notes.style.color);
                 badge.style.setProperty('--badge-fg', notes.style.backgroundColor);
+                document.body.style.setProperty('--note-fg', notes.style.color);
+                document.body.style.setProperty('--note-font-size', notes.style.fontSize);
             }
 
 
@@ -1140,6 +1196,7 @@
                     const end = textarea.selectionEnd;
                     textarea.value = savedText = event.newValue || '';
                     textarea.setSelectionRange(start, end);
+                    if (previewing) renderMarkdown(preview, savedText);
                 }
                 if (event.key !== null && !event.key.startsWith(NOTE_PREFIX)) return;
                 updateNotesButton();
@@ -1158,19 +1215,53 @@
                 }).join('\n');
             }
 
-            function renderPrintArea() {
-                const printArea = document.getElementById('printArea');
-                const text = document.getElementById('notes').value;
+            function renderMarkdown(target, text) {
                 if (window.marked && window.DOMPurify) {
                     const html = marked.parse(normalizeRules(text), { gfm: true, breaks: true });
-                    printArea.className = '';
-                    printArea.innerHTML = DOMPurify.sanitize(html);
+                    target.classList.remove('plain');
+                    target.innerHTML = DOMPurify.sanitize(html);
                 } else {
-                    // Knihovny se nenačetly (offline) — vytiskneme prostý text
-                    printArea.className = 'plain';
-                    printArea.textContent = text;
+                    // Knihovny se nenačetly (offline) — zobrazíme prostý text
+                    target.classList.add('plain');
+                    target.textContent = text;
                 }
             }
+
+            // Odkazy v náhledu a v PDF se otevírají mimo poznámky
+            if (window.DOMPurify) {
+                DOMPurify.addHook('afterSanitizeAttributes', function(node) {
+                    if (node.tagName === 'A' && node.hasAttribute('href')) {
+                        node.setAttribute('target', '_blank');
+                        node.setAttribute('rel', 'noopener');
+                    }
+                });
+            }
+
+            function renderPrintArea() {
+                renderMarkdown(document.getElementById('printArea'), document.getElementById('notes').value);
+            }
+
+            /* Preview of the note rendered as Markdown (eye button, CTRL+E / CMD+E) */
+            const preview = document.getElementById('preview');
+            const previewButton = document.getElementById('previewButton');
+            const previewShortcut = isMac ? ' (⌘E)' : ' (Ctrl+E)';
+            let previewing = false;
+
+            function setPreview(on) {
+                previewing = on;
+                if (on) {
+                    saveCurrentNote();
+                    renderMarkdown(preview, textarea.value);
+                }
+                textarea.hidden = on;
+                preview.hidden = !on;
+                previewButton.textContent = on ? '✏️' : '👁️';
+                previewButton.title = (on ? 'Upravit' : 'Náhled Markdown') + previewShortcut;
+                (on ? preview : textarea).focus();
+            }
+
+            previewButton.addEventListener('click', () => setPreview(!previewing));
+            previewButton.title += previewShortcut;
 
             const originalTitle = document.title;
             window.addEventListener('beforeprint', function() {
