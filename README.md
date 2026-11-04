@@ -13,13 +13,13 @@ With a single note the app looks exactly as before. More notes are there when yo
 - When no note has exactly the typed name, `+ New note` creates it.
 - `CTRL+Backspace` (`CMD+Backspace`) deletes the selected note after confirmation. The default note can't be deleted.
 - Every note has its own address: `www.poznamky.info/#work`. You can bookmark it or open it in another browser tab. The default note has no `#`.
-- With more than one note, a 🗂️ button with their count appears below the ⚙️ and 📄 buttons; clicking it opens the switcher.
+- With more than one note, a 🗂️ button with their count appears below the ⚙️ and 🖨️ buttons; clicking it opens the switcher.
 - Each note except the default one can have its own colors: check *Colors only for this note* in settings (⚙️). The font size stays global. Notes with own colors have a small color square in the switcher.
 - Empty notes (except the default one) are not kept, so they disappear when you leave them (together with their colors).
 - PDF export, `CTRL+SHIFT+S` and `CTRL+SHIFT+O` work with the current note; the file name contains the note name.
 
 ### Export to PDF with Markdown
-Press `CTRL+P` or click the 📄 button to open the browser print dialog, where you can print the notes or save them as PDF.
+Press `CTRL+P` or click the 🖨️ button to open the browser print dialog, where you can print the notes or save them as PDF.
 
 - Notes are rendered as Markdown ([GitHub Flavored Markdown](https://github.github.com/gfm/)): headings, bold/italic, lists, links, code blocks, quotes and tables.
 - Single line breaks are kept, so plain notes print the same way as you see them in the editor.
@@ -41,7 +41,7 @@ The list of shortcuts is also available in the settings dialog (⚙️ button or
 - `CTRL+D` duplicate row
 - `ALT+UP` / `ALT+DOWN` move row up/down
 - `CTRL+L` select row
-- `CTRL+P` export notes to PDF with Markdown formatting (also via the 📄 button)
+- `CTRL+P` export notes to PDF with Markdown formatting (also via the 🖨️ button)
 
 On macOS, `CMD` can be used instead of `CTRL`, except `CTRL+Q` (`CMD+Q` quits the browser, use `ALT+Q`) and `CTRL+SHIFT+O` (`CMD+SHIFT+O` is reserved by the browser for bookmarks). The shortcuts list in settings then shows `⌘` instead of `Ctrl`.
 
